@@ -1,0 +1,61 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// getStaticPaths: ビルド時に全タグのページを生成するための関数
+export async function getStaticPaths() {
+  // 全記事を取得
+  const posts = await getCollection('posts');
+  
+  // 全記事からタグを抽出してユニークにする
+  const allTags = [...new Set(posts.flatMap(post => post.data.tags))];
+  
+  // 各タグごとにページパラメータを返す
+  return allTags.map(tag => ({
+    params: { tag },  // URLパラメータ: /tags/[このtag]
+    props: {
+      // このタグを持つ記事だけフィルタリング
+      posts: posts.filter(post => post.data.tags.includes(tag))
+    }
+  }));
+}
+
+// URLから取得したタグと、フィルタリング済みの記事を受け取る
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+---
+
+<BaseLayout title={`${tag} - fuji.blog`}>
+  <div class="mb-12">
+    <h1 class="text-4xl font-bold mb-2 text-zinc-900 dark:text-zinc-50">
+      タグ: #{tag}
+    </h1>
+    <p class="text-zinc-600 dark:text-zinc-400">
+      {posts.length}件の記事
+    </p>
+  </div>
+  
+  <div class="space-y-8">
+    {posts.map((post) => {
+    const formattedDate = `${post.data.pubDate.getFullYear()}-${post.data.pubDate.getMonth() + 1}-${post.data.pubDate.getDate()}`;
+      
+      return (
+        <article class="border-b border-zinc-200 dark:border-zinc-800 pb-8 last:border-0">
+          <a href={`/posts/${post.id}`} class="block group">
+            <h2 class="text-2xl font-bold mb-2 text-zinc-900 dark:text-zinc-50 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              {post.data.title}
+            </h2>
+            
+            <p class="text-zinc-600 dark:text-zinc-400 mb-3">
+              {post.data.description}
+            </p>
+            
+            <time class="text-xl text-zinc-500" datetime={post.data.pubDate.toISOString()}>
+              {formattedDate}
+            </time>
+          </a>
+        </article>
+      );
+    })}
+  </div>
+</BaseLayout>

@@ -1,0 +1,62 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+
+type Props = CollectionEntry<'posts'>['data'];
+
+const { title, description, pubDate, updatedDate, tags } = Astro.props;
+
+const formattedDate = new Date(pubDate).toLocaleDateString('ja-JP', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const formattedUpdatedDate = updatedDate
+  ? new Date(updatedDate).toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  : null;
+---
+
+<BaseLayout title={title} description={description}>
+  <article>
+    <header class="mb-8">
+      <h1 class="text-4xl font-bold mb-4 text-slate-900 dark:text-slate-100">
+        {title}
+      </h1>
+      
+      <div class="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400 mb-4">
+        <time datetime={pubDate.toISOString()}>
+          {formattedDate}
+        </time>
+        
+        {formattedUpdatedDate && (
+          <span>
+            更新: {formattedUpdatedDate}
+          </span>
+        )}
+      </div>
+      
+      {tags && tags.length > 0 && (
+        <div class="flex gap-2 flex-wrap">
+          {tags.map((tag) => (
+            
+           <a
+              href={`/tags/${tag}`}
+              class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+            >
+              #{tag}
+            </a>
+          ))}
+        </div>
+      )}
+    </header>
+    
+    <div class="prose prose-slate dark:prose-invert prose-lg max-w-none">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
