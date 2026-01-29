@@ -2,9 +2,11 @@
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 
-type Props = CollectionEntry<'posts'>['data'];
+type Props = CollectionEntry<'posts'>['data'] & {
+  slug: string;
+};
 
-const { title, description, pubDate, updatedDate, tags } = Astro.props;
+const { title, description, pubDate, updatedDate, tags, slug } = Astro.props;
 
 const formattedDate = new Date(pubDate).toLocaleDateString('ja-JP', {
   year: 'numeric',
@@ -19,9 +21,15 @@ const formattedUpdatedDate = updatedDate
       day: 'numeric',
     })
   : null;
+
 ---
 
 <BaseLayout title={title} description={description}>
+  <!-- OGタグを追加 -->
+  <meta slot="head" property="og:type" content="article" />
+  <meta slot="head" property="og:image" content={`${Astro.site}og/${slug}.png`} />
+  <meta slot="head" property="og:url" content={Astro.url.href} />
+  <meta slot="head" name="twitter:image" content={`${Astro.site}og/${slug}.png`} />
   <article>
     <header class="mb-8">
       <h1 class="text-4xl font-bold mb-4 text-slate-900 dark:text-slate-100">
