@@ -4,67 +4,103 @@ import BaseLayout from './BaseLayout.astro';
 
 type Props = CollectionEntry<'posts'>['data'] & {
   slug: string;
+  headings: { depth: number; slug: string; text: string }[];
 };
 
-const { title, description, pubDate, updatedDate, tags, slug } = Astro.props;
+const { title, description, pubDate, updatedDate, tags, slug, headings = [] } = Astro.props;
 
-const formattedDate = new Date(pubDate).toLocaleDateString('ja-JP', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-});
+const formattedDate = `${pubDate.getFullYear()}-${pubDate.getMonth() + 1}-${pubDate.getDate()}`;
 
 const formattedUpdatedDate = updatedDate
-  ? new Date(updatedDate).toLocaleDateString('ja-JP', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
+  ? `${updatedDate.getFullYear()}-${updatedDate.getMonth() + 1}-${updatedDate.getDate()}`
   : null;
 
+// X共有用のURL
+const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://fuji.blog/posts/${slug}`)}`;
 ---
 
 <BaseLayout title={title} description={description}>
-  <!-- OGタグを追加 -->
   <meta slot="head" property="og:type" content="article" />
   <meta slot="head" property="og:image" content={`${Astro.site}og/${slug}.png`} />
   <meta slot="head" property="og:url" content={Astro.url.href} />
   <meta slot="head" name="twitter:image" content={`${Astro.site}og/${slug}.png`} />
-  <article>
-    <header class="mb-8">
-      <h1 class="text-4xl font-bold mb-4 text-slate-900 dark:text-slate-100">
-        {title}
-      </h1>
-      
-      <div class="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400 mb-4">
-        <time datetime={pubDate.toISOString()}>
-          {formattedDate}
-        </time>
+  
+  <div class="flex gap-12">
+    <article class="flex-1 min-w-0">
+      <header class="mb-8">
+        <h1 class="text-4xl font-bold mb-4 text-zinc-900 dark:text-zinc-50">
+          {title}
+        </h1>
         
-        {formattedUpdatedDate && (
-          <span>
-            更新: {formattedUpdatedDate}
-          </span>
-        )}
-      </div>
-      
-      {tags && tags.length > 0 && (
-        <div class="flex gap-2 flex-wrap">
-          {tags.map((tag) => (
-            
-           <a
-              href={`/tags/${tag}`}
-              class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
-            >
-              #{tag}
-            </a>
-          ))}
+        <div class="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+          <time datetime={pubDate.toISOString()}>
+            {formattedDate}
+          </time>
+          
+          {formattedUpdatedDate && (
+            <span>
+              更新: {formattedUpdatedDate}
+            </span>
+          )}
         </div>
-      )}
-    </header>
+        
+        {tags && tags.length > 0 && (
+          <div class="flex gap-2 flex-wrap mb-6">
+            {tags.map((tag) => (
+              <a              
+                href={`/tags/${tag}`}
+                class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+              >
+                #{tag}
+              </a>
+            ))}
+          </div>
+        )}
+        
+      </header>
+      
+      <div class="prose prose-zinc dark:prose-invert prose-lg max-w-none article-content">
+        <slot />
+      </div>
+      <div class="mt-12 pt-8 border-t border-zinc-200 dark:border-zinc-800">
+        <a 
+          href={shareUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
+        >
+          Share on
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </a>
+      </div>
+    </article>
     
-    <div class="prose prose-slate dark:prose-invert prose-lg max-w-none">
-      <slot />
-    </div>
-  </article>
+    <!-- サイドバー: 目次 -->
+    {headings.length > 0 && (
+      <aside class="hidden lg:block w-64 flex-shrink-0">
+        <div class="sticky top-24">
+          <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-50 mb-4">
+          Table of Contents
+          </h2>
+          <nav class="text-sm">
+            <ul class="space-y-2">
+              {headings.map((heading) => (
+                <li style={`padding-left: ${(heading.depth - 1) * 12}px`}>
+                  <a          
+                    href={`#${heading.slug}`}
+                    class="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors block"
+                  >
+                    {heading.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </aside>
+    )}
+  </div>
 </BaseLayout>
+
