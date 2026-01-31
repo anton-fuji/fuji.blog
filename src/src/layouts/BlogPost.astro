@@ -39,7 +39,7 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
           
           {formattedUpdatedDate && (
             <span>
-              更新: {formattedUpdatedDate}
+              Updated: {formattedUpdatedDate}
             </span>
           )}
         </div>
@@ -51,7 +51,7 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
                 href={`/tags/${tag}`}
                 class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
               >
-                #{tag}
+                # {tag}
               </a>
             ))}
           </div>

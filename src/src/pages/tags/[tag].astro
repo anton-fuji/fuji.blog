@@ -2,57 +2,78 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-// getStaticPaths: ビルド時に全タグのページを生成するための関数
 export async function getStaticPaths() {
-  // 全記事を取得
   const posts = await getCollection('posts');
-  
-  // 全記事からタグを抽出してユニークにする
   const allTags = [...new Set(posts.flatMap(post => post.data.tags))];
   
-  // 各タグごとにページパラメータを返す
   return allTags.map(tag => ({
-    params: { tag },  // URLパラメータ: /tags/[このtag]
+    params: { tag },
     props: {
-      // このタグを持つ記事だけフィルタリング
       posts: posts.filter(post => post.data.tags.includes(tag))
     }
   }));
 }
 
-// URLから取得したタグと、フィルタリング済みの記事を受け取る
 const { tag } = Astro.params;
 const { posts } = Astro.props;
 ---
 
 <BaseLayout title={`${tag} - fuji.blog`}>
-  <div class="mb-12">
-    <h1 class="text-4xl font-bold mb-2 text-zinc-900 dark:text-zinc-50">
-      タグ: #{tag}
-    </h1>
-    <p class="text-zinc-600 dark:text-zinc-400">
-      {posts.length}件の記事
-    </p>
+  <div class="mb-16">
+    <div class="bg-zinc-950 dark:bg-zinc-900 border border-zinc-800 dark:border-zinc-700 rounded-lg p-6 font-mono">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-xs text-zinc-500">bash</span>
+      </div>
+      <div class="text-cyan-600">
+        <span class="text-zinc-500">$</span> find --tag <span class="text-blue-300">"{tag}"</span>
+      </div>
+      <div class="text-zinc-400 mt-2">
+        → {posts.length} {posts.length === 1 ? 'result' : 'results'} found
+      </div>
+    </div>
   </div>
   
-  <div class="space-y-8">
-    {posts.map((post) => {
-    const formattedDate = `${post.data.pubDate.getFullYear()}-${post.data.pubDate.getMonth() + 1}-${post.data.pubDate.getDate()}`;
+  <!-- 記事一覧 -->
+  <div class="space-y-6">
+    {posts.map((post, index) => {
+      const formattedDate = `${post.data.pubDate.getFullYear()}-${post.data.pubDate.getMonth() + 1}-${post.data.pubDate.getDate()}`;
       
       return (
-        <article class="border-b border-zinc-200 dark:border-zinc-800 pb-8 last:border-0">
-          <a href={`/posts/${post.id}`} class="block group">
-            <h2 class="text-2xl font-bold mb-2 text-zinc-900 dark:text-zinc-50 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-              {post.data.title}
-            </h2>
-            
-            <p class="text-zinc-600 dark:text-zinc-400 mb-3">
-              {post.data.description}
-            </p>
-            
-            <time class="text-xl text-zinc-500" datetime={post.data.pubDate.toISOString()}>
-              {formattedDate}
-            </time>
+        <article class="group">
+          <a href={`/posts/${post.id}`} class="block">
+            {/* インデックス番号 */}
+            <div class="flex gap-6">
+              <div class="flex-shrink-0 w-12 text-right">
+                <span class="text-sm font-mono text-zinc-400 dark:text-zinc-600">
+                  [{String(index + 1).padStart(2, '0')}]
+                </span>
+              </div>
+              
+              <div class="flex-1 pb-6 border-b border-zinc-200 dark:border-zinc-800">
+                <div class="flex justify-between items-baseline mb-2 gap-8">
+                  <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-50 group-hover:text-blue-500 transition-colors">
+                    {post.data.title}
+                  </h2>
+                  <time class="text-xs font-mono text-zinc-500 whitespace-nowrap" datetime={post.data.pubDate.toISOString()}>
+                    {formattedDate}
+                  </time>
+                </div>
+                
+                <p class="text-zinc-600 dark:text-zinc-400 mb-3">
+                  {post.data.description}
+                </p>
+                
+                {/* メタ情報 */}
+                <div class="flex items-center gap-4 text-xs font-mono text-zinc-500">
+                  <span>type: article</span>
+                  {post.data.tags.length > 1 && (
+                    <span>
+                      tags: [{post.data.tags.filter(t => t !== tag).map(t => `"${t}"`).join(', ')}]
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </a>
         </article>
       );
