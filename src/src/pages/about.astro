@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import profileImg from '../../assets/fuji-icon.jpg';
+---
+
+<BaseLayout title="About - fuji.blog" description="fuji.blogについて">
+  <div class="max-w-2xl mx-auto">
+    <section class="mb-16">
+      <div class="flex justify-center mb-8">
+        <Image
+          src={profileImg}
+          alt="Fuji profile icon"
+          class="w-32 h-32 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700"
+        />
+      </div>
+      <div class="space-y-6">
+        <h2 class="text-4xl text-center font-bold text-zinc-900 dark:text-zinc-50">
+            Kazuki Fujimoto 
+        </h2>
+        <p class="text-center text-zinc-600 dark:text-zinc-400 leading-relaxed">
+          技術的な学びや日々の気づきを記録するためのゆるブログです。
+        </p>
+      </div>
+    </section>
+
+    <!-- Social Streams -->
+          <section>
+      <h2 class="text-sm uppercase tracking-wider text-zinc-500 dark:text-zinc-500 mb-6 font-mono">
+        Social Streams
+      </h2>
+      
+      <div class="space-y-3">
+        <!-- GitHub -->
+        <a 
+          href="https://github.com/anton-fuji" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="group flex items-center justify-between p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+        >
+          <div class="flex items-center gap-4">
+            <svg class="w-6 h-6 text-zinc-600 dark:text-zinc-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+            <div>
+              <div class="font-semibold text-zinc-900 dark:text-zinc-50">GitHub</div>
+              <div class="text-sm text-zinc-600 dark:text-zinc-400 font-mono">@anton-fuji</div>
+            </div>
+          </div>
+          <svg class="w-5 h-5 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+
+        <!-- X (Twitter) -->
+        <a 
+          href="https://x.com/sXq7XBrxuB87199" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="group flex items-center justify-between p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+        >
+          <div class="flex items-center gap-4">
+            <svg class="w-6 h-6 text-zinc-600 dark:text-zinc-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            <div>
+              <div class="font-semibold text-zinc-900 dark:text-zinc-50">X</div>
+              <div class="text-sm text-zinc-600 dark:text-zinc-400 font-mono">@sXq7XBrxuB87199</div>
+            </div>
+          </div>
+          <svg class="w-5 h-5 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+
+        <!-- Zenn -->
+        <a 
+          href="https://zenn.dev/fuuji" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="group flex items-center justify-between p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+        >
+          <div class="flex items-center gap-4">
+            <svg class="w-6 h-6 text-zinc-600 dark:text-zinc-400" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M0.264 23.771h4.984c0.264 0 0.498 -0.147 0.645 -0.352L19.614 0.874c0.176 -0.293 -0.029 -0.645 -0.381 -0.645h-4.72c-0.235 0 -0.44 0.117 -0.557 0.323L0.03 23.361c-0.088 0.176 0.029 0.41 0.234 0.41zm17.181 -0.352 6.479 -10.408c0.205 -0.323 -0.029 -0.733 -0.41 -0.733h-4.691c-0.176 0 -0.352 0.088 -0.44 0.235l-6.655 10.643c-0.176 0.264 0.029 0.616 0.352 0.616h4.779c0.234 -0.001 0.468 -0.118 0.586 -0.353z"/>
+            </svg>
+            <div>
+              <div class="font-semibold text-zinc-900 dark:text-zinc-50">Zenn</div>
+              <div class="text-sm text-zinc-600 dark:text-zinc-400 font-mono">@fuuji</div>
+            </div>
+          </div>
+          <svg class="w-5 h-5 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+
+      <!-- Qiita -->
+      <a 
+        href="https://qiita.com/fujifuji1414" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="group flex items-center justify-between p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+      >
+        <div class="flex items-center gap-4">
+          <svg
+            class="w-6 h-6 text-zinc-600 dark:text-zinc-400"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d="M3.57 8.343a3.653 3.653 0 0 0 -1.376 0.269 3.585 3.585 0 0 0 -1.14 0.738 3.503 3.503 0 0 0 -0.773 1.102A3.297 3.297 0 0 0 0 11.814a3.28 3.28 0 0 0 0.281 1.357 3.535 3.535 0 0 0 0.775 1.107A3.636 3.636 0 0 0 3.6 15.29a3.731 3.731 0 0 0 0.987 -0.13 3.657 3.657 0 0 0 0.888 -0.374l0.687 0.698a0.579 0.579 0 0 0 0.824 0 0.58 0.58 0 0 0 0 -0.817l-0.624 -0.624a3.533 3.533 0 0 0 0.613 -1.022 3.282 3.282 0 0 0 0.226 -1.208 3.297 3.297 0 0 0 -0.282 -1.362 3.488 3.488 0 0 0 -0.775 -1.102A3.614 3.614 0 0 0 5 8.612a3.657 3.657 0 0 0 -1.398 -0.27zm11.306 0.185v1.484h-0.765v1.063h0.765v2.142c0 0.419 0.053 0.761 0.159 1.028a1.56 1.56 0 0 0 0.433 0.63 1.511 1.511 0 0 0 0.643 0.317 2.676 2.676 0 0 0 0.694 0.086h0.853v-1.013h-0.736a1.25 1.25 0 0 1 -0.352 -0.048 0.713 0.713 0 0 1 -0.291 -0.169 0.81 0.81 0 0 1 -0.2 -0.324 1.575 1.575 0 0 1 -0.074 -0.519v-2.13h1.666v-1.063h-1.66V8.528zM9.4 8.856a0.69 0.69 0 0 0 -0.69 0.691 0.69 0.69 0 0 0 0.69 0.69 0.69 0.69 0 0 0 0.691 -0.69 0.69 0.69 0 0 0 -0.69 -0.691zm2.771 0a0.69 0.69 0 0 0 -0.69 0.691 0.69 0.69 0 0 0 0.69 0.69 0.69 0.69 0 0 0 0.691 -0.69 0.69 0.69 0 0 0 -0.69 -0.691zm-8.6 0.538a2.35 2.35 0 0 1 0.93 0.187 2.346 2.346 0 0 1 1.264 1.28 2.463 2.463 0 0 1 0.186 0.957 2.444 2.444 0 0 1 -0.186 0.957 2.384 2.384 0 0 1 -0.506 0.767 2.363 2.363 0 0 1 -1.688 0.698 2.324 2.324 0 0 1 -0.93 -0.186 2.376 2.376 0 0 1 -0.755 -0.512 2.427 2.427 0 0 1 -0.699 -1.723 2.44 2.44 0 0 1 0.699 -1.727 2.384 2.384 0 0 1 0.756 -0.511 2.324 2.324 0 0 1 0.898 -0.187zm17.648 0.773a2.69 2.69 0 0 0 -1.02 0.201 2.49 2.49 0 0 0 -0.815 0.552 2.432 2.432 0 0 0 -0.525 0.814 2.678 2.678 0 0 0 -0.186 0.998 2.644 2.644 0 0 0 0.186 0.997 2.485 2.485 0 0 0 0.525 0.814 2.436 2.436 0 0 0 0.815 0.546 2.697 2.697 0 0 0 1.059 0.2 2.42 2.42 0 0 0 0.518 -0.056 2.524 2.524 0 0 0 0.46 -0.146 2.426 2.426 0 0 0 0.394 -0.213 2.394 2.394 0 0 0 0.329 -0.263l0.065 0.53H24v-4.829h-0.976l-0.068 0.533a2.498 2.498 0 0 0 -0.322 -0.26 2.25 2.25 0 0 0 -0.394 -0.217 2.616 2.616 0 0 0 -0.462 -0.145 2.404 2.404 0 0 0 -0.521 -0.056zm-12.375 0.844v4.138h1.113V11.01zm2.77 0v4.138h1.114V11.01zm9.72 0.145a1.557 1.557 0 0 1 1.098 0.445 1.495 1.495 0 0 1 0.334 0.495 1.61 1.61 0 0 1 0.121 0.631 1.632 1.632 0 0 1 -0.121 0.64 1.551 1.551 0 0 1 -0.331 0.498 1.47 1.47 0 0 1 -0.49 0.324 1.642 1.642 0 0 1 -1.207 0 1.502 1.502 0 0 1 -0.493 -0.324 1.52 1.52 0 0 1 -0.333 -0.5 1.64 1.64 0 0 1 -0.122 -0.638 1.628 1.628 0 0 1 0.12 -0.637 1.524 1.524 0 0 1 0.328 -0.495 1.474 1.474 0 0 1 0.49 -0.323 1.592 1.592 0 0 1 0.581 -0.116z"/>
+          </svg>
+
+          <div>
+            <div class="font-semibold text-zinc-900 dark:text-zinc-50">Qiita</div>
+            <div class="text-sm text-zinc-600 dark:text-zinc-400 font-mono">
+              @fujifuji1414
+            </div>
+          </div>
+        </div>
+
+        <svg class="w-5 h-5 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors"
+             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+
+      <!-- Bluesky -->
+      <a 
+        href="https://bsky.app/profile/fuji-fuji.bsky.social" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="group flex items-center justify-between p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+      >
+        <div class="flex items-center gap-4">
+          <svg class="w-6 h-6 text-zinc-600 dark:text-zinc-400" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.038.415-.056-.138.022-.276.04-.415.056-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.308.953 3.195 2.05 9.271 7.733 4.308 4.267-4.308 1.172-6.498-2.74-7.078a8.741 8.741 0 0 1-.415-.056c.14.018.279.036.415.056 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.206-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8Z"/>
+          </svg>
+          <div>
+            <div class="font-semibold text-zinc-900 dark:text-zinc-50">Bluesky</div>
+            <div class="text-sm text-zinc-600 dark:text-zinc-400 font-mono">@fuji-fuji.bsky.social</div>
+          </div>
+        </div>
+        <svg class="w-5 h-5 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+
+      <!-- Findy -->
+      <a 
+        href="https://findy-code.io/skills-share/3JsrXVQCjwijI" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="group flex items-center justify-between p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+      >
+        <div class="flex items-center gap-4">
+          <svg
+            class="w-6 h-6 text-zinc-600 dark:text-zinc-400"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d="M12.779 0.025a11.789 11.789 0 0 0 -5.338 0.896A11.829 11.829 0 0 0 3.058 4.11 11.928 11.928 0 0 0 0.427 14.363a11.92 11.92 0 0 0 2.3 4.921 11.842 11.842 0 0 0 4.24 3.378 11.783 11.783 0 0 0 10.533 -0.226 0.327 0.327 0 0 1 0.331 0.018 9.136 9.136 0 0 0 5.197 1.545 0.332 0.332 0 0 0 0.332 -0.332v-4.038a0.334 0.334 0 0 0 -0.276 -0.331 4.732 4.732 0 0 1 -1.106 -0.319 0.329 0.329 0 0 1 -0.191 -0.352 0.33 0.33 0 0 1 0.05 -0.133 11.943 11.943 0 0 0 0.772 -11.871 11.87 11.87 0 0 0 -4.042 -4.628A11.793 11.793 0 0 0 12.765 0.018l0.013 0.007h0.001ZM4.843 11.898a7.24 7.24 0 0 1 1.205 -4.005 7.18 7.18 0 0 1 3.215 -2.657 7.133 7.133 0 0 1 7.815 1.558 7.239 7.239 0 0 1 1.555 7.854 7.202 7.202 0 0 1 -2.643 3.234 7.147 7.147 0 0 1 -9.049 -0.896 7.228 7.228 0 0 1 -2.103 -5.089l0.005 0.001Z"/>
+          </svg>
+
+          <div>
+            <div class="font-semibold text-zinc-900 dark:text-zinc-50">Findy</div>
+            <div class="text-sm text-zinc-600 dark:text-zinc-400 font-mono">
+              Skills Share
+            </div>
+          </div>
+        </div>
+
+        <svg class="w-5 h-5 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors"
+             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+
+      </div>
+    </section>
+  </div>
+</BaseLayout>
