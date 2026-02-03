@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { Image } from 'astro:assets';
 import profileImg from '../../assets/fuji-icon.jpg';
+import iconImg from '../../assets/alien-svg.svg';
 ---
 
 <BaseLayout title="About - fuji.blog" description="fuji.blogについて">
@@ -74,6 +75,33 @@ import profileImg from '../../assets/fuji-icon.jpg';
               <div class="text-sm text-zinc-600 dark:text-zinc-400 font-mono">@anton-fuji</div>
             </div>
           </div>
+          <svg class="w-5 h-5 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+
+        <!-- Portfolio Site -->
+        <a 
+          href="https://fuuji.site" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="group flex items-center justify-between p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+        >
+        <div class="flex items-center gap-4">
+          <Image
+            src={iconImg}
+            alt="Portfolio site"
+            class="w-6 h-6 text-zinc-600 dark:text-zinc-400"
+          />
+          <div>
+            <div class="font-semibold text-zinc-900 dark:text-zinc-50">
+              My Portfolio Site
+            </div>
+            <div class="text-sm text-zinc-600 dark:text-zinc-400 font-mono">
+              @fuuji.site
+            </div>
+          </div>
+        </div>
           <svg class="w-5 h-5 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
           </svg>
