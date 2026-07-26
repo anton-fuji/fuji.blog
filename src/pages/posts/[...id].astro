@@ -1,19 +1,24 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { getPostLocale, getPostSlug, getTranslatedPost } from '../../lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
-  return posts.map((post) => ({
-    params: { id: post.id },
-    props: { post },
-  }));
+  return posts
+    .filter((post) => getPostLocale(post) === 'ja')
+    .map((post) => ({
+      params: { id: getPostSlug(post) },
+      props: { post, posts },
+    }));
 }
 
-const { post } = Astro.props;
+const { post, posts } = Astro.props;
 const { Content , headings} = await render(post);
+const translatedPost = getTranslatedPost(post, posts, 'en');
+const slug = getPostSlug(post);
 ---
 
-<BlogPost {...post.data} slug={post.id} headings={headings}>
+<BlogPost {...post.data} slug={slug} headings={headings} post={post} lang="ja" jaPath={`/posts/${slug}`} enPath={translatedPost ? `/en/posts/${getPostSlug(translatedPost)}` : undefined}>
   <Content />
 </BlogPost>

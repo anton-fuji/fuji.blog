@@ -12,6 +12,9 @@ const posts = defineCollection({
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
+    lang: z.enum(['ja', 'en']).optional(),
+    routeSlug: z.string().optional(),
+    translationKey: z.string().optional(),
     draft: z.boolean().default(false),
   }),
 });

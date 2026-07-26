@@ -1,0 +1,28 @@
+---
+interface Props {
+  label: string;
+  href?: string;
+  kind?: 'meta' | 'tag';
+}
+
+const { label, href, kind = 'tag' } = Astro.props;
+
+const classes = [
+  'inline-flex items-center gap-1 font-mono text-xs leading-none transition-colors',
+  kind === 'tag'
+    ? 'text-zinc-500 hover:text-zinc-800 dark:text-zinc-500 dark:hover:text-zinc-200'
+    : 'h-6 rounded-md border border-zinc-200/80 bg-white/45 px-2 text-[11px] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/45 dark:text-zinc-500',
+];
+---
+
+{href ? (
+  <a href={href} class:list={classes}>
+    {kind === 'tag' && <span class="text-zinc-400 dark:text-zinc-500">#</span>}
+    <span>{label}</span>
+  </a>
+) : (
+  <span class:list={classes}>
+    {kind === 'tag' && <span class="text-zinc-400 dark:text-zinc-500">#</span>}
+    <span>{label}</span>
+  </span>
+)}

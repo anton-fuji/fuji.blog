@@ -1,12 +1,15 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { generateOGImage } from '../../lib/og-image';
+import { formatPostDate, getPostLocale, getPostSlug } from '../../lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
 
   return posts.map((post) => ({
-    params: { id: post.id },
+    params: {
+      id: getPostLocale(post) === 'en' ? `en/${getPostSlug(post)}` : getPostSlug(post),
+    },
     props: { post },
   }));
 }
@@ -14,13 +17,13 @@ export async function getStaticPaths() {
 export const GET: APIRoute = async ({ props }) => {
   const { post } = props as any;
 
-  // 日付をフォーマット
-  const formattedDate = `${post.data.pubDate.getFullYear()}-${post.data.pubDate.getMonth() + 1}-${post.data.pubDate.getDate()}`;
+  const formattedDate = formatPostDate(post.data.pubDate);
 
   // OG画像を生成
   const png = await generateOGImage({
     title: post.data.title,
     date: formattedDate,
+    locale: getPostLocale(post),
   });
 
   return new Response(png, {

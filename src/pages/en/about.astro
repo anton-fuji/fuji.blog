@@ -1,10 +1,10 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import { Image } from 'astro:assets';
-import profileImg from '../../assets/fuji-icon.jpg';
+import profileImg from '../../../assets/fuji-icon.jpg';
 ---
 
-<BaseLayout title="About - fuji.blog" description="fuji.blogについて" lang="ja" jaPath="/about" enPath="/en/about">
+<BaseLayout title="About - fuji.blog" description="About fuji.blog" lang="en" jaPath="/about" enPath="/en/about">
   <section class="max-w-2xl space-y-10">
     <div class="flex items-center gap-5">
       <Image
@@ -20,7 +20,7 @@ import profileImg from '../../assets/fuji-icon.jpg';
           Kazuki Fujimoto
         </h1>
         <p class="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-          大阪でWebアプリケーションを作っています。
+          I build web applications in Osaka.
         </p>
       </div>
     </div>

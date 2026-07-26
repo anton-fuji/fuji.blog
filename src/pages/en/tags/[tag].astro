@@ -1,17 +1,17 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { formatPostDate, getPostLocale, getPostPath, getPostTranslationKey, getReadingTime } from '../../lib/posts';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { formatPostDate, getPostLocale, getPostPath, getPostTranslationKey, getReadingTime } from '../../../lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
-  const jaPosts = posts.filter((post) => !post.data.draft && getPostLocale(post) === 'ja');
-  const allTags = [...new Set(jaPosts.flatMap(post => post.data.tags))];
-  
+  const enPosts = posts.filter((post) => !post.data.draft && getPostLocale(post) === 'en');
+  const allTags = [...new Set(enPosts.flatMap(post => post.data.tags))];
+
   return allTags.map(tag => {
-    const taggedPosts = jaPosts.filter(post => post.data.tags.includes(tag));
-    const enTag = posts
-      .filter((post) => !post.data.draft && getPostLocale(post) === 'en')
+    const taggedPosts = enPosts.filter(post => post.data.tags.includes(tag));
+    const jaTag = posts
+      .filter((post) => !post.data.draft && getPostLocale(post) === 'ja')
       .find((post) => taggedPosts.some((taggedPost) => getPostTranslationKey(taggedPost) === getPostTranslationKey(post)))
       ?.data.tags[0];
 
@@ -19,36 +19,31 @@ export async function getStaticPaths() {
       params: { tag },
       props: {
         posts: taggedPosts,
-        enTag,
+        jaTag,
       }
     };
   });
 }
 
 const { tag } = Astro.params;
-const { posts, enTag } = Astro.props;
+const { posts, jaTag } = Astro.props;
 ---
 
-<BaseLayout title={`${tag} - fuji.blog`} lang="ja" jaPath={`/tags/${tag}`} enPath={enTag ? `/en/tags/${enTag}` : undefined}>
+<BaseLayout title={`${tag} - fuji.blog`} lang="en" jaPath={jaTag ? `/tags/${jaTag}` : undefined} enPath={`/en/tags/${tag}`}>
   <section class="mb-12 border-b border-zinc-200/70 pb-8 dark:border-zinc-800/80">
-    <p
-      class="mb-4 font-mono text-xs uppercase text-zinc-500 dark:text-zinc-500"
-      data-i18n-ja={`タグ / ${posts.length} 件`}
-      data-i18n-en={`Tag index / ${posts.length} ${posts.length === 1 ? 'post' : 'posts'}`}
-    >
-      タグ / {posts.length} 件
+    <p class="mb-4 font-mono text-xs uppercase text-zinc-500 dark:text-zinc-500">
+      Tag index / {posts.length} {posts.length === 1 ? 'post' : 'posts'}
     </p>
     <h1 class="text-4xl font-semibold text-zinc-900 dark:text-zinc-100">
       #{tag}
     </h1>
   </section>
-  
-  <!-- 記事一覧 -->
+
   <div class="space-y-0">
     {posts.map((post) => {
       const formattedDate = formatPostDate(post.data.pubDate);
       const readingTime = getReadingTime(post);
-      
+
       return (
         <article class="border-b border-zinc-200/70 dark:border-zinc-800/80">
           <a href={getPostPath(post)} class="group grid gap-3 py-6 transition-colors sm:grid-cols-[8rem_1fr] sm:gap-8">

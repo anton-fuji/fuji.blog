@@ -1,11 +1,12 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
+import { getPostLocale, getPostSlug } from '../lib/posts';
 
 export async function GET(context) {
   const posts = await getCollection('posts');
 
   const publishedPosts = posts
-    .filter(post => !post.data.draft)
+    .filter(post => !post.data.draft && getPostLocale(post) === 'ja')
     .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
   return rss({
@@ -16,7 +17,7 @@ export async function GET(context) {
       title: post.data.title,
       description: post.data.description,
       pubDate: post.data.pubDate,
-      link: `/posts/${post.id}/`,
+      link: `/posts/${getPostSlug(post)}/`,
       categories: post.data.tags,
     })),
     customData: `<language>ja</language>`,

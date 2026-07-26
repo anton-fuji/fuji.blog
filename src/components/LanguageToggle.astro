@@ -1,0 +1,104 @@
+---
+interface Props {
+  lang?: 'ja' | 'en';
+  jaPath?: string;
+  enPath?: string;
+}
+
+const { lang = 'ja', jaPath, enPath } = Astro.props;
+const targetLanguage = lang === 'ja' ? 'en' : 'ja';
+const targetPath = targetLanguage === 'ja' ? jaPath : enPath;
+---
+
+<button
+  id="language-toggle"
+  class="inline-flex h-8 items-center rounded-md border border-zinc-200/80 bg-white/35 px-2 font-mono text-xs text-zinc-500 transition-colors hover:border-zinc-300 hover:text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/45 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-300"
+  type="button"
+  aria-label="Switch language"
+  data-current-language={lang}
+  data-target-language={targetLanguage}
+  data-target-path={targetPath}
+>
+  <span id="language-toggle-label">{targetLanguage.toUpperCase()}</span>
+</button>
+
+<script is:inline>
+  (() => {
+    const storageKey = 'language';
+    const supportedLanguages = ['ja', 'en'];
+
+    function getStoredLanguage() {
+      try {
+        return localStorage.getItem(storageKey);
+      } catch {
+        return null;
+      }
+    }
+
+    function setStoredLanguage(language) {
+      try {
+        localStorage.setItem(storageKey, language);
+      } catch {
+        // Ignore storage failures; the current page can still switch language.
+      }
+    }
+
+    function getInitialLanguage() {
+      const pageLanguage = document.documentElement.lang;
+      if (supportedLanguages.includes(pageLanguage)) {
+        return pageLanguage;
+      }
+
+      const storedLanguage = getStoredLanguage();
+      if (supportedLanguages.includes(storedLanguage)) {
+        return storedLanguage;
+      }
+      return 'ja';
+    }
+
+    function applyLanguage(language) {
+      document.documentElement.lang = language;
+      document.documentElement.dataset.language = language;
+
+      document.querySelectorAll('[data-i18n-ja][data-i18n-en]').forEach((element) => {
+        const text = element.getAttribute(`data-i18n-${language}`);
+        if (text !== null) {
+          element.textContent = text;
+        }
+      });
+
+      const toggle = document.getElementById('language-toggle');
+      const label = document.getElementById('language-toggle-label');
+      if (label) {
+        label.textContent = language === 'ja' ? 'EN' : 'JA';
+      }
+      if (toggle) {
+        toggle.setAttribute('aria-label', language === 'ja' ? 'Switch to English' : '日本語に切り替え');
+      }
+    }
+
+    let currentLanguage = getInitialLanguage();
+
+    applyLanguage(currentLanguage);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      applyLanguage(currentLanguage);
+
+      document.getElementById('language-toggle')?.addEventListener('click', () => {
+        const toggle = document.getElementById('language-toggle');
+        const targetPath = toggle?.getAttribute('data-target-path');
+        const targetLanguage = toggle?.getAttribute('data-target-language');
+
+        if (targetPath && targetLanguage) {
+          setStoredLanguage(targetLanguage);
+          window.location.href = targetPath;
+          return;
+        }
+
+        currentLanguage = currentLanguage === 'ja' ? 'en' : 'ja';
+        setStoredLanguage(currentLanguage);
+        applyLanguage(currentLanguage);
+      });
+    });
+  })();
+</script>

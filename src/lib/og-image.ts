@@ -6,13 +6,14 @@ import { resolve } from "node:path";
 interface OGImageOptions {
   title: string;
   date: string;
+  locale?: "ja" | "en";
 }
 
 export async function generateOGImage({
   title,
   date,
+  locale = "ja",
 }: OGImageOptions): Promise<Buffer> {
-  // フォント読み込み
   const fontInter = await readFile(
     resolve(process.cwd(), "./public/fonts/Inter-Bold.ttf")
   );
@@ -24,100 +25,104 @@ export async function generateOGImage({
     {
       type: "div",
       props: {
-        // ▼ 全体の背景
         style: {
           height: "100%",
           width: "100%",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#000000", // 完全な黒ベース
-          backgroundImage: "radial-gradient(circle at 0% 0%, #1e1b4b 0%, #000000 60%)",
-          color: "#ffffff",
-          padding: "80px",
+          justifyContent: "space-between",
+          backgroundColor: "#fdfcf9",
+          color: "#27272a",
+          padding: "64px",
+          border: "1px solid #e7e5e1",
         },
         children: [
-          // ▼ メインタイトル (画面のど真ん中)
+          {
+            type: "div",
+            props: {
+              style: {
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                fontFamily: "Inter",
+                fontSize: "24px",
+                color: "#71717a",
+              },
+              children: [
+                {
+                  type: "span",
+                  props: {
+                    children: "fuji.blog",
+                    style: {
+                      fontWeight: 700,
+                    },
+                  },
+                },
+                {
+                  type: "span",
+                  props: {
+                    children: `${locale.toUpperCase()} / ${date}`,
+                    style: {
+                      fontWeight: 700,
+                    },
+                  },
+                },
+              ],
+            },
+          },
           {
             type: "div",
             props: {
               style: {
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center", // 中央揃え
-                justifyContent: "center",
-                textAlign: "center",
+                gap: "28px",
                 width: "100%",
               },
               children: [
-                // タイトル本体
                 {
                   type: "div",
                   props: {
                     style: {
-                      fontSize: "60px",
+                      width: "72px",
+                      height: "1px",
+                      backgroundColor: "#a1a1aa",
+                    },
+                  },
+                },
+                {
+                  type: "div",
+                  props: {
+                    children: title,
+                    style: {
+                      maxWidth: "980px",
+                      fontSize: "68px",
                       fontWeight: 700,
-                      lineHeight: 1.3,
+                      lineHeight: 1.12,
                       fontFamily: 'Inter, "Noto Sans JP"',
-                      color: "#f0ffff",
-                      // 長文対応
+                      color: "#27272a",
                       display: "-webkit-box",
                       lineClamp: 3,
                       webkitLineClamp: 3,
                       webkitBoxOrient: "vertical",
                       overflow: "hidden",
-                      // 背景が暗いので、文字が発光しているようなドロップシャドウ
-                      textShadow: "0 0 30px rgba(255, 255, 255, 0.3)",
                     },
-                    children: title,
-                  },
-                },
-                // 日付 
-                {
-                  type: "div",
-                  props: {
-                    style: {
-                      marginTop: "32px",
-                      fontSize: "18px",
-                      color: "#94a3b8", // 暗めのグレーで目立たせない
-                      fontFamily: 'Inter, "Noto Sans JP"',
-                      letterSpacing: "0.05em",
-                    },
-                    children: date.replace(/-/g, '-'), // 2024-01-01 -> 2024.01.01 表記に変更
                   },
                 },
               ],
             },
           },
-
-          // ▼ 右下のロゴ (絶対配置)
           {
             type: "div",
             props: {
+              children: locale === "ja" ? "Osaka / Web engineer" : "Osaka / Web engineer",
               style: {
-                position: "absolute",
-                bottom: "30px",
-                right: "60px",
-                display: "flex",
-                alignItems: "center",
+                fontFamily: "Inter",
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "#71717a",
               },
-              children: [
-                // ブログ名
-                {
-                  type: "span",
-                  props: {
-                    children: "fuji.blog",
-                    style: {
-                      fontSize: "25px",
-                      fontWeight: 400,
-                      color: "#2d1224",
-                      fontFamily: "Inter", // 英字フォント優先
-                      letterSpacing: "-0.02em", // 少し詰めてロゴっぽく
-                    },
-                  },
-                },
-              ],
             },
           },
         ],

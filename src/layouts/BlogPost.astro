@@ -1,58 +1,89 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
+import PostBadge from '../components/PostBadge.astro';
+import { formatPostDate, getReadingTime } from '../lib/posts';
 
 type Props = CollectionEntry<'posts'>['data'] & {
   slug: string;
   headings: { depth: number; slug: string; text: string }[];
+  post: CollectionEntry<'posts'>;
+  lang?: 'ja' | 'en';
+  jaPath?: string;
+  enPath?: string;
 };
 
-const { title, description, pubDate, updatedDate, tags, slug, headings = [] } = Astro.props;
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  tags,
+  slug,
+  headings = [],
+  post,
+  lang = 'ja',
+  jaPath,
+  enPath,
+} = Astro.props;
 
-const formattedDate = `${pubDate.getFullYear()}-${pubDate.getMonth() + 1}-${pubDate.getDate()}`;
+const formattedDate = formatPostDate(pubDate);
 
 const formattedUpdatedDate = updatedDate
-  ? `${updatedDate.getFullYear()}-${updatedDate.getMonth() + 1}-${updatedDate.getDate()}`
+  ? formatPostDate(updatedDate)
   : null;
 
+const readingTime = getReadingTime(post);
+const postPath = lang === 'en' ? `/en/posts/${slug}` : `/posts/${slug}`;
+const ogImagePath = lang === 'en' ? `og/en/${slug}.png` : `og/${slug}.png`;
+
 // X共有用のURL
-const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://fuji.blog/posts/${slug}`)}`;
+const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://fuji.blog${postPath}`)}`;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} lang={lang} jaPath={jaPath} enPath={enPath}>
   <meta slot="head" property="og:type" content="article" />
-  <meta slot="head" property="og:image" content={`${Astro.site}og/${slug}.png`} />
+  <meta slot="head" property="og:image" content={`${Astro.site}${ogImagePath}`} />
   <meta slot="head" property="og:url" content={Astro.url.href} />
-  <meta slot="head" name="twitter:image" content={`${Astro.site}og/${slug}.png`} />
+  <meta slot="head" name="twitter:image" content={`${Astro.site}${ogImagePath}`} />
   
   <div class="flex gap-12">
     <article class="flex-1 min-w-0">
-      <header class="mb-8">
-        <h1 class="text-4xl font-bold mb-4 text-zinc-900 dark:text-zinc-50">
-          {title}
-        </h1>
-        
-        <div class="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+      <header class="mb-10 border-b border-zinc-200/70 pb-8 dark:border-zinc-800/80">
+        <div class="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs uppercase text-zinc-500 dark:text-zinc-500">
           <time datetime={pubDate.toISOString()}>
             {formattedDate}
           </time>
-          
+
           {formattedUpdatedDate && (
-            <span>
-              Updated: {formattedUpdatedDate}
+            <span
+              data-i18n-ja={`更新 ${formattedUpdatedDate}`}
+              data-i18n-en={`Updated ${formattedUpdatedDate}`}
+            >
+              Updated {formattedUpdatedDate}
             </span>
           )}
+
+          <PostBadge label={readingTime} kind="meta" />
         </div>
-        
+
+        <h1 class="max-w-3xl text-4xl font-semibold leading-tight text-zinc-900 dark:text-zinc-100 sm:text-5xl">
+          {title}
+        </h1>
+
+        {description && (
+          <p class="mt-5 max-w-2xl text-base leading-8 text-zinc-600 dark:text-zinc-400">
+            {description}
+          </p>
+        )}
+
         {tags && tags.length > 0 && (
-          <div class="flex gap-2 flex-wrap mb-6">
+          <div class="mt-6 flex gap-2 flex-wrap">
             {tags.map((tag) => (
-              <a              
-                href={`/tags/${tag}`}
-                class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
-              >
-                # {tag}
-              </a>
+              <PostBadge
+                href={lang === 'en' ? `/en/tags/${tag}` : `/tags/${tag}`}
+                label={tag}
+              />
             ))}
           </div>
         )}
@@ -62,14 +93,14 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
       <div class="prose prose-zinc dark:prose-invert prose-lg max-w-none article-content">
         <slot />
       </div>
-      <div class="mt-12 pt-8 border-t border-zinc-200 dark:border-zinc-800">
+      <div class="mt-12 pt-8 border-t border-zinc-200/70 dark:border-zinc-800/80">
         <a 
           href={shareUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
+          class="inline-flex items-center gap-2 font-mono text-xs uppercase text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
         >
-          Share on
+          <span data-i18n-ja="共有" data-i18n-en="Share on">Share on</span>
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
@@ -80,17 +111,21 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
     <!-- Agenda -->
     {headings.length > 0 && (
       <aside class="hidden lg:block w-64 flex-shrink-0">
-        <div class="sticky top-24">
-          <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-50 mb-4">
-          Table of Contents
+        <div class="sticky top-24 border-l border-zinc-200/70 pl-5 dark:border-zinc-800/80">
+          <h2
+            class="mb-4 font-mono text-xs uppercase text-zinc-500 dark:text-zinc-500"
+            data-i18n-ja="目次"
+            data-i18n-en="Contents"
+          >
+            Contents
           </h2>
           <nav class="text-sm">
-            <ul class="space-y-2">
+            <ul class="space-y-2.5">
               {headings.map((heading) => (
                 <li style={`padding-left: ${(heading.depth - 1) * 12}px`}>
                   <a          
                     href={`#${heading.slug}`}
-                    class="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors block"
+                    class="block text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
                   >
                     {heading.text}
                   </a>
@@ -103,4 +138,3 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
     )}
   </div>
 </BaseLayout>
-

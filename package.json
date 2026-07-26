@@ -2,11 +2,13 @@
   "name": "src",
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "pnpm@11.16.0",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "new:post": "node scripts/new-post.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
