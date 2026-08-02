@@ -59,11 +59,7 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
             return null;
           }
         })();
-        const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-
-        if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        }
+        document.documentElement.classList.add(storedTheme === 'light' ? 'light' : 'dark');
 
         const initialLanguage = document.documentElement.lang || storedLanguage || 'ja';
         document.documentElement.dataset.language = initialLanguage;
@@ -72,21 +68,26 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
 
     <slot name="head"/>
   </head>
-  <body class="bg-stone-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 min-h-screen transition-colors flex flex-col">
-    <header class="sticky top-0 z-50 border-b border-zinc-200/60 bg-[#fdfcf9]/88 backdrop-blur-xl dark:border-zinc-800/70 dark:bg-[#111113]/88">
-      <nav class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center gap-4">
-        <a href={lang === 'en' ? '/en' : '/'} class="font-mono text-sm font-semibold text-zinc-800 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300">
+  <body class="min-h-screen flex flex-col">
+    <header class="site-header">
+      <nav class="site-nav">
+        <a href={lang === 'en' ? '/en' : '/'} class="site-logo">
           fuji.blog
         </a>
         
         <div class="flex items-center gap-3 sm:gap-5">
+          <button class="header-search" type="button" aria-label="Search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <span>Search</span>
+            <kbd>⌘ K</kbd>
+          </button>
           <a
             href={lang === 'en' ? '/en' : '/'}
             class:list={[
-              'font-mono text-xs uppercase transition-colors',
+              'nav-link',
               isHome
-                ? 'text-zinc-800 dark:text-zinc-100'
-                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300',
+                ? 'is-active'
+                : '',
             ]}
             data-i18n-ja="Home"
             data-i18n-en="Home"
@@ -96,17 +97,17 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
           <a
             href={lang === 'en' ? '/en/about' : '/about'}
             class:list={[
-              'font-mono text-xs uppercase transition-colors',
+              'nav-link',
               isAbout
-                ? 'text-zinc-800 dark:text-zinc-100'
-                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300',
+                ? 'is-active'
+                : '',
             ]}
             data-i18n-ja="About"
             data-i18n-en="About"
           >
             About
           </a>
-          <a href="/rss.xml" target="_blank" rel="noopener noreferrer" class="text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300" aria-label="RSS">
+          <a href="/rss.xml" target="_blank" rel="noopener noreferrer" class="nav-icon" aria-label="RSS">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M5 3a1 1 0 000 2c5.523 0 10 4.477 10 10a1 1 0 102 0C17 8.373 11.627 3 5 3z"></path>
               <path d="M4 9a1 1 0 011-1 7 7 0 017 7 1 1 0 11-2 0 5 5 0 00-5-5 1 1 0 01-1-1zM3 15a2 2 0 114 0 2 2 0 01-4 0z"></path>
@@ -114,22 +115,112 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
           </a>
           <LanguageToggle lang={lang} jaPath={jaPath} enPath={enPath} />
           <ThemeToggle />
+          <div class="header-menu-wrap">
+            <button class="header-menu" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+            <div class="header-dropdown" role="menu">
+              <section class="menu-group">
+                <p>Site</p>
+                <div class="menu-theme" aria-label="Theme preference">
+                  <button type="button" data-theme-mode="light" aria-label="Use light theme" title="Light theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+                  <button type="button" data-theme-mode="dark" aria-label="Use dark theme" title="Dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.99 12.49A9 9 0 1 1 11.51 3a7 7 0 0 0 9.48 9.49Z"/></svg></button>
+                </div>
+              </section>
+              <section class="menu-group">
+                <p>Writing</p>
+                <a href={lang === 'en' ? '/en' : '/'} role="menuitem">Tags</a>
+              </section>
+              <section class="menu-group">
+                <p>More</p>
+                <a href={lang === 'en' ? '/en/about' : '/about'} role="menuitem">About</a>
+                <a href="https://github.com/anton-fuji" target="_blank" rel="noopener noreferrer" role="menuitem">GitHub</a>
+              </section>
+            </div>
+          </div>
         </div>
       </nav>
     </header>
     
-    <main class="max-w-4xl mx-auto px-4 py-12 sm:py-16 w-full flex-1">
+    <main class="site-main">
       <slot />
     </main>
     
-    <footer class="border-t border-zinc-200/70 dark:border-zinc-800/80">
-      <div class="max-w-4xl mx-auto px-4 py-5">
-        <div class="text-center">
-          <p class="text-xs text-zinc-500 dark:text-zinc-500">
-            © 2026 fuji.blog
-          </p>
+    <footer class="site-footer">
+      <div class="site-footer-inner">
+        <p>© 2026 <a href={lang === 'en' ? '/en' : '/'}>Kazuki Fujimoto</a></p>
+        <div class="footer-links">
+          <a href={lang === 'en' ? '/en/about' : '/about'}>about</a>
+          <span>·</span>
+          <a href="/rss.xml">rss</a>
         </div>
       </div>
     </footer>
+    <div id="search-dialog" class="search-dialog" hidden>
+      <button class="search-backdrop" type="button" aria-label="Close search"></button>
+      <section class="search-panel" role="dialog" aria-modal="true" aria-labelledby="search-title">
+        <div class="search-field">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="search-input" type="search" placeholder="Search posts…" autocomplete="off" />
+          <button id="search-close" type="button">Esc</button>
+        </div>
+        <p id="search-title" class="search-label">Recent posts</p>
+        <div id="search-results" class="search-results"></div>
+      </section>
+    </div>
+    <script is:inline>
+      (() => {
+        const header = document.querySelector('.site-header');
+        const menu = document.querySelector('.header-menu-wrap');
+        const button = document.querySelector('.header-menu');
+        if (header instanceof HTMLElement && menu instanceof HTMLElement && button instanceof HTMLButtonElement) {
+          let closeTimer;
+          const open = () => { clearTimeout(closeTimer); header.classList.add('menu-open'); button.setAttribute('aria-expanded', 'true'); };
+          const close = () => { closeTimer = setTimeout(() => { header.classList.remove('menu-open'); button.setAttribute('aria-expanded', 'false'); }, 240); };
+          menu.addEventListener('mouseenter', open);
+          menu.addEventListener('mouseleave', close);
+          button.addEventListener('click', () => header.classList.contains('menu-open') ? close() : open());
+          menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => { clearTimeout(closeTimer); }));
+          menu.querySelectorAll('[data-theme-mode]').forEach((control) => control.addEventListener('click', () => {
+            const mode = control.getAttribute('data-theme-mode');
+            if (mode !== 'light' && mode !== 'dark') return;
+            document.documentElement.classList.toggle('dark', mode === 'dark');
+            document.documentElement.classList.toggle('light', mode === 'light');
+            try { localStorage.setItem('theme', mode); } catch {}
+          }));
+        }
+
+        const trigger = document.querySelector('.header-search');
+        const dialog = document.getElementById('search-dialog');
+        const input = document.getElementById('search-input');
+        const results = document.getElementById('search-results');
+        const closeSearch = () => dialog?.setAttribute('hidden', '');
+        const openSearch = () => { dialog?.removeAttribute('hidden'); setTimeout(() => input?.focus(), 0); };
+        let posts = [];
+        const render = (query = '') => {
+          if (!(results instanceof HTMLElement)) return;
+          const language = location.pathname.startsWith('/en') ? 'en' : 'ja';
+          const needle = query.trim().toLocaleLowerCase();
+          const matches = posts.filter((post) => post.lang === language && (!needle || [post.title, post.description, ...post.tags].join(' ').toLocaleLowerCase().includes(needle))).slice(0, 8);
+          results.replaceChildren();
+          if (!matches.length) { results.textContent = 'No matching posts.'; return; }
+          matches.forEach((post) => {
+            const link = document.createElement('a'); link.href = post.href;
+            const title = document.createElement('strong'); title.textContent = post.title;
+            const description = document.createElement('span'); description.textContent = post.description;
+            link.append(title, description); results.append(link);
+          });
+        };
+        trigger?.addEventListener('click', async () => {
+          openSearch();
+          if (!posts.length) { posts = await fetch('/search.json').then((response) => response.json()); }
+          render();
+        });
+        input?.addEventListener('input', () => render(input.value));
+        dialog?.querySelectorAll('.search-backdrop, #search-close').forEach((element) => element.addEventListener('click', closeSearch));
+        addEventListener('keydown', (event) => {
+          if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); trigger?.click(); }
+          if (event.key === 'Escape') closeSearch();
+        });
+      })();
+    </script>
   </body>
 </html>
