@@ -47,10 +47,10 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
   <meta slot="head" property="og:url" content={Astro.url.href} />
   <meta slot="head" name="twitter:image" content={`${Astro.site}${ogImagePath}`} />
   
-  <div class="flex gap-12">
-    <article class="flex-1 min-w-0">
-      <header class="mb-10 border-b border-zinc-200/70 pb-8 dark:border-zinc-800/80">
-        <div class="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs uppercase text-zinc-500 dark:text-zinc-500">
+  <div class="article-layout">
+    <article class="article">
+      <header class="article-header">
+        <div class="article-info">
           <time datetime={pubDate.toISOString()}>
             {formattedDate}
           </time>
@@ -67,18 +67,18 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
           <PostBadge label={readingTime} kind="meta" />
         </div>
 
-        <h1 class="max-w-3xl text-4xl font-semibold leading-tight text-zinc-900 dark:text-zinc-100 sm:text-5xl">
+        <h1>
           {title}
         </h1>
 
         {description && (
-          <p class="mt-5 max-w-2xl text-base leading-8 text-zinc-600 dark:text-zinc-400">
+          <p class="article-description">
             {description}
           </p>
         )}
 
         {tags && tags.length > 0 && (
-          <div class="mt-6 flex gap-2 flex-wrap">
+          <div class="article-tags">
             {tags.map((tag) => (
               <PostBadge
                 href={lang === 'en' ? `/en/tags/${tag}` : `/tags/${tag}`}
@@ -90,15 +90,15 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
         
       </header>
       
-      <div class="prose prose-zinc dark:prose-invert prose-lg max-w-none article-content">
+      <div class="prose article-content">
         <slot />
       </div>
-      <div class="mt-12 pt-8 border-t border-zinc-200/70 dark:border-zinc-800/80">
+      <div class="article-share">
         <a 
           href={shareUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 font-mono text-xs uppercase text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
+          class="share-link"
         >
           <span data-i18n-ja="共有" data-i18n-en="Share on">Share on</span>
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -110,22 +110,22 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
     
     <!-- Agenda -->
     {headings.length > 0 && (
-      <aside class="hidden lg:block w-64 flex-shrink-0">
-        <div class="sticky top-24 border-l border-zinc-200/70 pl-5 dark:border-zinc-800/80">
+      <aside class="table-of-contents">
+        <div>
           <h2
-            class="mb-4 font-mono text-xs uppercase text-zinc-500 dark:text-zinc-500"
+            class="toc-title"
             data-i18n-ja="目次"
             data-i18n-en="Contents"
           >
             Contents
           </h2>
-          <nav class="text-sm">
-            <ul class="space-y-2.5">
+          <nav>
+            <ul>
               {headings.map((heading) => (
                 <li style={`padding-left: ${(heading.depth - 1) * 12}px`}>
                   <a          
                     href={`#${heading.slug}`}
-                    class="block text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
+                    class="toc-link"
                   >
                     {heading.text}
                   </a>
