@@ -19,6 +19,7 @@
     "satori": "^0.19.1",
     "satori-html": "^0.3.2",
     "sharp": "^0.34.5",
+    "simple-icons": "^16.27.1",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
