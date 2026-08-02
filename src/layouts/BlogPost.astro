@@ -47,9 +47,15 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
   <meta slot="head" property="og:url" content={Astro.url.href} />
   <meta slot="head" name="twitter:image" content={`${Astro.site}${ogImagePath}`} />
   
-  <div class="article-layout">
-    <article class="article">
+  <div class="article-frame">
+    <div class="article-layout">
+      <article class="article">
       <header class="article-header">
+        <nav class="article-breadcrumb" aria-label="Breadcrumb">
+          <a href={lang === 'en' ? '/en' : '/'}>home</a>
+          <span>/</span>
+          <span>posts</span>
+        </nav>
         <div class="article-info">
           <time datetime={pubDate.toISOString()}>
             {formattedDate}
@@ -87,8 +93,22 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
             ))}
           </div>
         )}
-        
       </header>
+
+      {headings.length > 0 && (
+        <details class="article-toc">
+          <summary data-i18n-ja="目次" data-i18n-en="Contents">Contents</summary>
+          <nav aria-label="Table of contents">
+            <ul>
+              {headings.map((heading) => (
+                <li style={`padding-left: ${(heading.depth - 1) * 12}px`}>
+                  <a href={`#${heading.slug}`}>{heading.text}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </details>
+      )}
       
       <div class="prose article-content">
         <slot />
@@ -106,35 +126,7 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
           </svg>
         </a>
       </div>
-    </article>
-    
-    <!-- Agenda -->
-    {headings.length > 0 && (
-      <aside class="table-of-contents">
-        <div>
-          <h2
-            class="toc-title"
-            data-i18n-ja="目次"
-            data-i18n-en="Contents"
-          >
-            Contents
-          </h2>
-          <nav>
-            <ul>
-              {headings.map((heading) => (
-                <li style={`padding-left: ${(heading.depth - 1) * 12}px`}>
-                  <a          
-                    href={`#${heading.slug}`}
-                    class="toc-link"
-                  >
-                    {heading.text}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
-      </aside>
-    )}
+      </article>
+    </div>
   </div>
 </BaseLayout>

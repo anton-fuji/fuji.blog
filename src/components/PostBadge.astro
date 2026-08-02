@@ -9,11 +9,9 @@ const { label, href, kind = 'tag' } = Astro.props;
 
 const classes = [
   'post-badge',
-  'badge',
-  'badge-sm',
   kind === 'tag'
-    ? 'post-badge-tag badge-outline badge-primary'
-    : 'post-badge-meta badge-ghost',
+    ? 'post-badge-tag'
+    : 'post-badge-meta',
 ];
 ---
 
