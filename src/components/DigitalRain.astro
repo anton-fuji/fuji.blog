@@ -6,7 +6,7 @@
     if (!(layer instanceof HTMLElement)) return;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const frame = layer.closest('.home-frame');
+    const frame = layer.closest('.rain-frame');
     if (!(frame instanceof HTMLElement)) return;
 
     const streams = [];

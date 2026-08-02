@@ -1,10 +1,13 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import DigitalRain from '../../components/DigitalRain.astro';
 import { siQiita } from 'simple-icons';
 ---
 
 <BaseLayout title="About - fuji.blog" description="About fuji.blog" lang="en" jaPath="/about" enPath="/en/about">
-  <div class="about-page">
+  <div class="about-frame rain-frame">
+    <DigitalRain />
+    <div class="about-page">
     <p class="about-portfolio-note">
       For more details, visit my <a href="https://fuuji.site" target="_blank" rel="noopener noreferrer">portfolio ↗</a>
     </p>
@@ -131,5 +134,6 @@ import { siQiita } from 'simple-icons';
         </a>
       </div>
     </section>
+    </div>
   </div>
 </BaseLayout>
