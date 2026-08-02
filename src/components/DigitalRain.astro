@@ -29,7 +29,7 @@
         const block = document.createElement('i');
         const fade = 1 - index / blockCount;
         const alpha = Math.max(.06, random(.12, .34) * fade + (brightHead && index < 2 ? .45 * (1 - index * .5) : 0));
-        block.style.opacity = String(alpha);
+        block.style.opacity = `calc(var(--rain-strength, 1) * ${alpha})`;
         stream.append(block);
       }
 

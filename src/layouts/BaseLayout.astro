@@ -70,6 +70,7 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
     <slot name="head"/>
   </head>
   <body class="min-h-screen flex flex-col bg-base-100 text-base-content">
+    <div class="site-shell">
     <header class="site-header">
       <nav class="site-nav navbar">
         <a href={lang === 'en' ? '/en' : '/'} class="site-logo">
@@ -128,6 +129,7 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
         </div>
       </div>
     </footer>
+    </div>
     <div id="search-dialog" class="search-dialog modal modal-top" hidden>
       <button class="search-backdrop modal-backdrop" type="button" aria-label="Close search"></button>
       <section class="search-panel modal-box" role="dialog" aria-modal="true" aria-labelledby="search-title">
@@ -176,8 +178,8 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
         const dialog = document.getElementById('search-dialog');
         const input = document.getElementById('search-input');
         const results = document.getElementById('search-results');
-        const closeSearch = () => { dialog?.classList.remove('modal-open'); dialog?.setAttribute('hidden', ''); };
-        const openSearch = () => { dialog?.removeAttribute('hidden'); dialog?.classList.add('modal-open'); setTimeout(() => input?.focus(), 0); };
+        const closeSearch = () => { document.body.classList.remove('search-open'); dialog?.classList.remove('modal-open'); dialog?.setAttribute('hidden', ''); };
+        const openSearch = () => { document.body.classList.add('search-open'); dialog?.removeAttribute('hidden'); dialog?.classList.add('modal-open'); setTimeout(() => input?.focus(), 0); };
         let posts = [];
         const render = (query = '') => {
           if (!(results instanceof HTMLElement)) return;
