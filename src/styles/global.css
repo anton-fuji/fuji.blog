@@ -1,12 +1,59 @@
 @import "tailwindcss";
+@plugin "daisyui" {
+  themes: false;
+}
+@plugin "daisyui/theme" {
+  name: "fuji-dark";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: #0a0a0a;
+  --color-base-200: #151515;
+  --color-base-300: #2e2e2e;
+  --color-base-content: #ededed;
+  --color-primary: #8ac8ff;
+  --color-primary-content: #07111a;
+  --color-neutral: #171717;
+  --color-neutral-content: #ededed;
+  --color-info: #8ac8ff;
+  --radius-selector: .375rem;
+  --radius-field: .375rem;
+  --radius-box: .6rem;
+  --size-selector: .25rem;
+  --size-field: .25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+@plugin "daisyui/theme" {
+  name: "fuji-light";
+  color-scheme: light;
+  --color-base-100: #fafafa;
+  --color-base-200: #f0f0f0;
+  --color-base-300: #dedede;
+  --color-base-content: #171717;
+  --color-primary: #0069c2;
+  --color-primary-content: #ffffff;
+  --color-neutral: #e9e9e9;
+  --color-neutral-content: #171717;
+  --color-info: #0069c2;
+  --radius-selector: .375rem;
+  --radius-field: .375rem;
+  --radius-box: .6rem;
+  --size-selector: .25rem;
+  --size-field: .25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
 @variant dark (&:is(.dark *));
 
 :root {
-  --paper: #0a0a0a;
-  --ink: #ededed;
-  --muted: #a1a1a1;
-  --line: #2e2e2e;
-  --blue: #ededed;
+  --paper: var(--color-base-100);
+  --ink: var(--color-base-content);
+  --muted: color-mix(in srgb, var(--color-base-content) 66%, transparent);
+  --line: var(--color-base-300);
+  --blue: var(--color-primary);
   --blue-soft: #e7f2fa;
   --sans: Inter, "Hiragino Sans", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --serif: var(--sans);

@@ -9,7 +9,7 @@ const posts = getPublishedPosts(await getCollection('posts'), 'en');
 
 <BaseLayout title="fuji.blog" lang="en" jaPath="/" enPath="/en">
   <section class="home-page">
-    <div class="home-frame">
+    <div class="home-frame card">
       <HeroRain />
       <div class="home-intro home-hero">
         <section class="hero" aria-label="Introduction">
@@ -40,8 +40,8 @@ const posts = getPublishedPosts(await getCollection('posts'), 'en');
             <a href={getPostPath(post)} class="post-list-link">
               <div class="post-meta-line">
                 <time class="post-date" datetime={post.data.pubDate.toISOString()}>{formattedDate}</time>
-                <span class="post-category">{post.data.tags[0] ?? 'Writing'}</span>
-                <span class="post-reading">{readingTime}</span>
+                <span class="post-category badge badge-ghost badge-sm">{post.data.tags[0] ?? 'Writing'}</span>
+                <span class="post-reading badge badge-ghost badge-sm">{readingTime}</span>
               </div>
               <div class="post-copy">
                 <h3>
