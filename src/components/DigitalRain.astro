@@ -55,7 +55,7 @@
       width = bounds.width;
       height = bounds.height;
       streams.splice(0).forEach((stream) => stream.element.remove());
-      const count = Math.max(30, Math.floor(width / 17));
+      const count = Math.max(52, Math.floor(width / 10));
       for (let index = 0; index < count; index += 1) {
         const stream = createStream();
         stream.element.style.left = `${stream.x}px`;
