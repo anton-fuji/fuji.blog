@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import DigitalRain from '../components/DigitalRain.astro';
 import { formatPostDate, getPostPath, getPublishedPosts, getReadingTime } from '../lib/posts';
 
 const posts = getPublishedPosts(await getCollection('posts'), 'ja');
@@ -8,7 +9,8 @@ const posts = getPublishedPosts(await getCollection('posts'), 'ja');
 
 <BaseLayout title="fuji.blog" lang="ja" jaPath="/" enPath="/en">
   <section class="home-page">
-    <div class="home-frame card">
+    <div class="home-frame">
+      <DigitalRain />
       <div class="home-intro home-hero">
         <section class="hero" aria-label="Introduction">
         <div class="hero__body">
