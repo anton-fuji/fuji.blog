@@ -52,24 +52,18 @@ const { posts, enTag } = Astro.props;
       return (
         <article class="post-list-item">
           <a href={getPostPath(post)} class="post-list-link">
-            <time class="post-date" datetime={post.data.pubDate.toISOString()}>
-              {formattedDate}
-            </time>
+            <div class="post-meta-line">
+              <time class="post-date" datetime={post.data.pubDate.toISOString()}>{formattedDate}</time>
+              <span class="post-reading">{readingTime}</span>
+            </div>
 
             <div>
-              <div class="post-category badge badge-ghost badge-sm">{post.data.tags[0] ?? 'Writing'}</div>
               <h3>
                 {post.data.title}
               </h3>
               <p>
                 {post.data.description}
               </p>
-              <div class="post-meta">
-                <span class="badge badge-ghost badge-sm">{readingTime}</span>
-                {post.data.tags.filter(t => t !== tag).map(t => (
-                  <span class="badge badge-outline badge-sm transition-colors group-hover:text-zinc-700 dark:group-hover:text-zinc-300">#{t}</span>
-                ))}
-              </div>
             </div>
           </a>
         </article>
