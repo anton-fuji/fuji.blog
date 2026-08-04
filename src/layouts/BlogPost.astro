@@ -129,4 +129,69 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
       </article>
     </div>
   </div>
+
+  <script>
+    const languageNames: Record<string, string> = {
+      bash: 'Shell',
+      css: 'CSS',
+      html: 'HTML',
+      javascript: 'JavaScript',
+      js: 'JavaScript',
+      json: 'JSON',
+      jsx: 'JSX',
+      markdown: 'Markdown',
+      md: 'Markdown',
+      sh: 'Shell',
+      shell: 'Shell',
+      ts: 'TypeScript',
+      tsx: 'TSX',
+      typescript: 'TypeScript',
+      yaml: 'YAML',
+      yml: 'YAML',
+    };
+
+    const copyLabel = document.documentElement.lang === 'ja' ? 'コピー' : 'Copy';
+    const copiedLabel = document.documentElement.lang === 'ja' ? 'コピー済み' : 'Copied';
+
+    document.querySelectorAll<HTMLElement>('.article-content pre[data-language]').forEach((pre) => {
+      if (pre.parentElement?.classList.contains('code-block')) return;
+
+      const code = pre.querySelector('code');
+      if (!code) return;
+
+      const language = pre.dataset.language ?? 'text';
+      const wrapper = document.createElement('div');
+      const header = document.createElement('div');
+      const label = document.createElement('span');
+      const copyButton = document.createElement('button');
+
+      wrapper.className = 'code-block';
+      header.className = 'code-block__header';
+      label.className = 'code-block__language';
+      label.textContent = languageNames[language.toLowerCase()] ?? language;
+      copyButton.className = 'code-block__copy';
+      copyButton.type = 'button';
+      copyButton.textContent = copyLabel;
+      copyButton.setAttribute('aria-label', `${copyLabel}: ${label.textContent}`);
+
+      copyButton.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(code.textContent ?? '');
+          copyButton.textContent = copiedLabel;
+          window.setTimeout(() => {
+            copyButton.textContent = copyLabel;
+          }, 1600);
+        } catch {
+          copyButton.textContent = 'Failed';
+          window.setTimeout(() => {
+            copyButton.textContent = copyLabel;
+          }, 1600);
+        }
+      });
+
+      header.append(label, copyButton);
+      pre.replaceWith(wrapper);
+      wrapper.append(header, pre);
+    });
+  </script>
 </BaseLayout>
