@@ -1,57 +1,30 @@
 {
-  description = "Personal blog with Astro, MDX, Rust, and Tailwind";
+  description = "Personal blog development environment";
 
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
-    rust-overlay = {
-      url = "github:oxalica/rust-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-  };
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-  outputs = { self, nixpkgs, flake-utils, rust-overlay }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        overlays = [ (import rust-overlay) ];
-        pkgs = import nixpkgs {
-          inherit system overlays;
-        };
-        
-        rustToolchain = pkgs.rust-bin.stable.latest.default.override {
-          extensions = [ "rust-src" "rust-analyzer" ];
-          targets = [ "wasm32-unknown-unknown" ];
-        };
-      in
-      {
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
+  outputs = { nixpkgs, ... }:
+    let
+      systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
+    in
+    {
+      devShells = nixpkgs.lib.genAttrs systems (system: {
+        default =
+        let pkgs = nixpkgs.legacyPackages.${system};
+        in pkgs.mkShell {
+          packages = with pkgs; [
             nodejs_24
             pnpm
-            
-            rustToolchain
-            wasm-pack
-            wasm-bindgen-cli
-            
-            # ビルドツール
-            pkg-config
-            openssl
-            
             git
           ];
 
           shellHook = ''
-            echo "🚀 Blog development environment loaded!"
+            echo "Astro development environment loaded"
             echo "Node.js: $(node --version)"
             echo "pnpm: $(pnpm --version)"
-            echo "Rust: $(rustc --version)"
-            echo ""
-            echo "Run 'pnpm create astro@latest' to initialize Astro project"
+            echo "Git: $(git --version)"
           '';
-          
-          # 環境変数の設定
-          RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
         };
-      }
-    );
+      });
+    };
 }
