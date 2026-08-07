@@ -1,7 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { formatPostDate, getPostLocale, getPostPath, getPostTranslationKey, getReadingTime } from '../../lib/posts';
+import PostList from '../../components/PostList.astro';
+import { getPostLocale, getPostTranslationKey } from '../../lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -43,37 +44,5 @@ const { posts, enTag } = Astro.props;
     </h1>
   </section>
   
-  <!-- 記事一覧 -->
-  <div class="post-list">
-    {posts.map((post) => {
-      const formattedDate = formatPostDate(post.data.pubDate);
-      const readingTime = getReadingTime(post);
-      
-      return (
-        <article class="post-list-item">
-          <a href={getPostPath(post)} class="post-list-link">
-            <time class="post-date" datetime={post.data.pubDate.toISOString()}>
-              {formattedDate}
-            </time>
-
-            <div>
-              <div class="post-category badge badge-ghost badge-sm">{post.data.tags[0] ?? 'Writing'}</div>
-              <h3>
-                {post.data.title}
-              </h3>
-              <p>
-                {post.data.description}
-              </p>
-              <div class="post-meta">
-                <span class="badge badge-ghost badge-sm">{readingTime}</span>
-                {post.data.tags.filter(t => t !== tag).map(t => (
-                  <span class="badge badge-outline badge-sm transition-colors group-hover:text-zinc-700 dark:group-hover:text-zinc-300">#{t}</span>
-                ))}
-              </div>
-            </div>
-          </a>
-        </article>
-      );
-    })}
-  </div>
+  <PostList posts={posts} />
 </BaseLayout>
