@@ -2,7 +2,8 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DigitalRain from '../components/DigitalRain.astro';
-import { formatPostDate, getPostPath, getPublishedPosts, getReadingTime } from '../lib/posts';
+import PostList from '../components/PostList.astro';
+import { getPublishedPosts } from '../lib/posts';
 
 const posts = getPublishedPosts(await getCollection('posts'), 'ja');
 ---
@@ -34,31 +35,7 @@ const posts = getPublishedPosts(await getCollection('posts'), 'ja');
       <div class="section-heading">
         <h2>Recent writing</h2>
       </div>
-      <div class="post-list">
-      {posts.map((post, index) => {
-        const formattedDate = formatPostDate(post.data.pubDate);
-        const readingTime = getReadingTime(post);
-        
-        return (
-          <article class="post-list-item" style={`--post-index: '${String(index + 1).padStart(2, '0')}'`}>
-            <a href={getPostPath(post)} class="post-list-link">
-              <div class="post-meta-line">
-                <time class="post-date" datetime={post.data.pubDate.toISOString()}>{formattedDate}</time>
-                <span class="post-reading">{readingTime}</span>
-              </div>
-              <div class="post-copy">
-                <h3>
-                  {post.data.title}
-                </h3>
-                <p>
-                  {post.data.description}
-                </p>
-              </div>
-            </a>
-          </article>
-        );
-      })}
-      </div>
+      <PostList posts={posts} />
     </div>
   </section>
 </BaseLayout>

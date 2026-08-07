@@ -1,7 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { formatPostDate, getPostLocale, getPostPath, getPostTranslationKey, getReadingTime } from '../../../lib/posts';
+import PostList from '../../../components/PostList.astro';
+import { getPostLocale, getPostTranslationKey } from '../../../lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -39,30 +40,5 @@ const { posts, jaTag } = Astro.props;
     </h1>
   </section>
 
-  <div class="post-list">
-    {posts.map((post) => {
-      const formattedDate = formatPostDate(post.data.pubDate);
-      const readingTime = getReadingTime(post);
-
-      return (
-        <article class="post-list-item">
-          <a href={getPostPath(post)} class="post-list-link">
-            <div class="post-meta-line">
-              <time class="post-date" datetime={post.data.pubDate.toISOString()}>{formattedDate}</time>
-              <span class="post-reading">{readingTime}</span>
-            </div>
-
-            <div>
-              <h3>
-                {post.data.title}
-              </h3>
-              <p>
-                {post.data.description}
-              </p>
-            </div>
-          </a>
-        </article>
-      );
-    })}
-  </div>
+  <PostList posts={posts} />
 </BaseLayout>
