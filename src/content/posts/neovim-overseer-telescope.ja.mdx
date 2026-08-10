@@ -1,0 +1,248 @@
+---
+title: "Neovimのタスク実行をOverseerとTelescopeでちょっと便利にした"
+description: "Overseer.nvimのタスク選択をTelescopeから操作して、プロジェクト単位で複数タスクを実行できるようにした話"
+pubDate: 2026-08-10
+tags:
+  - Neovim
+  - Overseer
+  - Telescope
+draft: false
+---
+
+## はじめに
+
+最近、Neovimからプロジェクトのタスクを実行するために
+[Overseer.nvim](https://github.com/stevearc/overseer.nvim)を使い始めました。
+
+今回紹介するNeovimの設定は、自分のdotfilesで管理しています。
+
+よかったら見てみてください。
+
+https://github.com/anton-fuji/dotfiles/tree/main/nvim
+
+Overseer自体はかなり便利なのですが、使っているうちに
+「タスクを選ぶところを、もう少し自分好みにしたいな」と思うようになりました。
+
+そこで今回は、Overseerのタスク一覧を[Telescope](https://github.com/nvim-telescope/telescope.nvim)で表示して、
+検索・複数選択・実行までできるようにしてみました。
+
+## 最初はタスクを1つずつ選んでいた
+
+最初はOverseerを追加して、用意されているタスク選択画面をそのまま使っていました。
+
+タスク一覧を開いて、Tabキーで移動しながら実行したいものを1つ選ぶ、という感じです。
+別にこれが悪いというわけではなく1つだけ実行する分にはこれで十分なのですが、複数のタスクを起動したいときには少し面倒でした。
+
+たとえば、lint, typecheck, build、それぞれを別のタスクで動かしたい場合でも、
+その場で複数のタスクを選んで並列に実行することができませんでした。
+
+「タスクを探す画面」と「タスクを実行する仕組み」はすでにあるので、
+あとは自分が普段使っているTelescopeの操作感を組み合わせれば自分の求めている体験が実現できそうだったのでやってみました。
+
+## やりたかったこと
+
+今回の目標は、だいたい次のようなものでした。
+
+- プロジェクトごとのタスクを実行したい
+- タスク名を検索して選びたい
+- 複数のタスクをまとめて実行したい
+- できるだけキーボード操作だけで完結したい
+
+最終的には、プロジェクト内で `<leader>or` を押すとTelescopeが開き、
+そこから実行したいタスクを選べるようにしました。
+
+## Overseer.nvimを導入する
+
+Overseer.nvimは、Neovim上でコマンドやビルドタスクを管理・実行できるプラグインです。
+
+自分の設定では、タスク実行とタスク一覧の表示に次のキーマップを割り当てています。
+
+- `<leader>or`：タスクを選んで実行
+- `<leader>ot`：タスク一覧を開く
+- `<leader>oR`：前回のタスクを再実行
+
+設定は `lua/extensions/overseer.lua` にまとめています。
+
+```lua
+return {
+  "stevearc/overseer.nvim",
+  cmd = { "OverseerRun", "OverseerOpen", "OverseerToggle", "OverseerRestartLast" },
+  keys = {
+    {
+      "<leader>or",
+      function() require("utils.project").run_task() end,
+      desc = "Run project task",
+    },
+    { "<leader>ot", "<cmd>OverseerOpen<cr>", desc = "Focus task list" },
+    { "<leader>oR", "<cmd>OverseerRestartLast<cr>", desc = "Restart last task" },
+  },
+}
+```
+
+## プロジェクトのルートを先に決める
+
+タスクを実行するときに大事なのが、
+「今どのプロジェクトにいるのか」を正しく判定することです。
+
+そこで `lua/utils/project.lua` に、プロジェクトルートを返す関数を作りました。
+
+まず、現在のバッファに接続されているLSPの `root_dir` を確認します。
+LSPが使えない場合は、`.git`、`go.mod`、`package.json`、`Cargo.toml`、`Makefile` などの
+プロジェクトマーカーを上方向に探します。
+
+```lua
+function M.root()
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  for _, client in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
+    if client.config.root_dir then
+      return client.config.root_dir
+    end
+  end
+
+  local name = vim.api.nvim_buf_get_name(bufnr)
+  if name ~= "" then
+    local root = vim.fs.root(name, root_markers)
+    if root then
+      return root
+    end
+
+    return vim.fs.dirname(name)
+  end
+
+  return vim.fn.getcwd()
+end
+```
+
+この処理を共通化しておくと、Overseerだけでなく、
+Telescopeのファイル検索やgrep検索でも同じプロジェクト単位の挙動にできます。
+
+## OverseerのテンプレートをTelescopeで選ぶ
+
+タスク実行の中心は `M.run_task()` です。
+
+まず、プロジェクトルートと現在のファイルタイプを検索条件にして、
+Overseerのテンプレート一覧を取得します。
+
+```lua
+local root = M.root()
+local search_params = {
+  dir = root,
+  filetype = vim.bo.filetype,
+}
+
+local template = require("overseer.template")
+
+template.list(search_params, function(templates)
+  -- Telescopeでテンプレートを表示する
+end)
+```
+
+取得したテンプレートをTelescopeのfinderに渡すと、
+タスク名や説明を検索できる一覧になります。
+
+```lua
+finder = finders.new_table({
+  results = templates,
+  entry_maker = function(item)
+    return {
+      value = item,
+      display = item.desc and (item.name .. " — " .. item.desc) or item.name,
+      ordinal = item.name .. " " .. (item.desc or ""),
+    }
+  end,
+}),
+```
+
+Overseerの画面を直接操作するのではなく、
+普段から使っているTelescopeの検索操作でタスクを探せるのがポイントです。
+
+## 複数のタスクをまとめて実行する
+
+今回いちばん便利になったのが、タスクの複数選択です。
+
+Telescopeのpickerに次の操作を追加しました。
+
+- `<Tab>` / `j` / `k`：タスクを移動
+- `Space`：タスクを選択・選択解除
+- `Enter`：選択したタスクを実行
+
+選択されたタスクを取得して、順番に `overseer.run_template()` へ渡します。
+
+```lua
+local picker = action_state.get_current_picker(prompt_bufnr)
+local selected = picker:get_multi_selection()
+
+if #selected == 0 then
+  selected = { action_state.get_selected_entry() }
+end
+
+actions.close(prompt_bufnr)
+
+for _, entry in ipairs(selected) do
+  require("overseer").run_template({
+    name = entry.value.name,
+    cwd = root,
+    search_params = search_params,
+  })
+end
+```
+
+たとえば、formatter、test、dev serverのようなタスクが用意されている場合、
+必要なものをSpaceで選んでEnterを押すだけで、まとめて起動できます。
+
+## 実行中のタスクをlualineに表示する
+
+タスクを実行できるようになると、次は状態を確認したくなります。
+
+そこでlualineからOverseerのタスクリストを参照し、
+実行中のタスク数と失敗したタスク数をステータスラインに表示しています。
+
+```lua
+local function task_status()
+  local ok, task_list = pcall(require, "overseer.task_list")
+  if not ok then
+    return ""
+  end
+
+  local running, failed = 0, 0
+  for _, task in ipairs(task_list.list_tasks({})) do
+    if task.status == "RUNNING" then
+      running = running + 1
+    elseif task.status == "FAILURE" then
+      failed = failed + 1
+    end
+  end
+
+  -- 表示用の文字列を返す
+end
+```
+
+タスク一覧を開かなくても、Neovimの画面下部を見るだけで
+何かが動いているか、失敗していないかを確認できます。
+
+## 実際の使い方
+
+使い方はシンプルです。
+
+1. プロジェクト内で `<leader>or` を押す
+2. Telescopeでタスクを検索する
+3. 必要なら `Space` で複数選択する
+4. `Enter` で実行する
+5. `<leader>ot` でタスクの詳細を確認する
+
+このくらいの操作で、ターミナルに移動せずにプロジェクトのタスクを実行できます。
+
+## まとめ
+
+Overseerはタスクを実行する部分を担当し、
+Telescopeはタスクを探して選ぶ部分を担当します。
+
+それぞれの得意なところを組み合わせることで、
+Neovimからのタスク実行を自分の操作感に合わせられました。
+
+特に、プロジェクトルートの判定と複数タスク実行を追加したことで、
+プロジェクトを移動しても同じキーマップでタスクを扱えるようになったのがよかったです。
+
+Neovimのタスク実行をもう少し便利にしたい人には、
+OverseerとTelescopeの組み合わせは結構おすすめです。

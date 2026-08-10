@@ -1,0 +1,31 @@
+---
+import { getLinkPreview } from '../lib/link-preview';
+
+interface Props {
+  href: string;
+  title?: string;
+}
+
+const { href, title: explicitTitle } = Astro.props;
+const preview = await getLinkPreview(href);
+const title = explicitTitle ?? preview.title;
+---
+
+<a class="link-card" href={href} target="_blank" rel="noopener noreferrer">
+  {preview.image && (
+    <div class="link-card__image-wrap">
+      <img class="link-card__image" src={preview.image} alt="" loading="lazy" />
+    </div>
+  )}
+  <span class="link-card__body">
+    <span class="link-card__site">{preview.siteName}</span>
+    <strong class="link-card__title">{title}</strong>
+    <span class="link-card__description">{preview.description}</span>
+    <span class="link-card__url">
+      {new URL(href).hostname}
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M14 5h5v5M19 5l-8 8M19 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" />
+      </svg>
+    </span>
+  </span>
+</a>

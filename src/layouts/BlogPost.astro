@@ -152,6 +152,10 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
 
     const copyLabel = document.documentElement.lang === 'ja' ? 'コピー' : 'Copy';
     const copiedLabel = document.documentElement.lang === 'ja' ? 'コピー済み' : 'Copied';
+    const failedLabel = document.documentElement.lang === 'ja' ? 'コピーに失敗' : 'Copy failed';
+    const copyIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="1.5"></rect><path d="M16 8V6.5A1.5 1.5 0 0 0 14.5 5h-8A1.5 1.5 0 0 0 5 6.5v8A1.5 1.5 0 0 0 6.5 16H8"></path></svg>';
+    const checkIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4.2 4.2L19 6.5"></path></svg>';
+    const failedIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v6M12 17.2v.1"></path><circle cx="12" cy="12" r="8.5"></circle></svg>';
 
     document.querySelectorAll<HTMLElement>('.article-content pre[data-language]').forEach((pre) => {
       if (pre.parentElement?.classList.contains('code-block')) return;
@@ -171,20 +175,30 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
       label.textContent = languageNames[language.toLowerCase()] ?? language;
       copyButton.className = 'code-block__copy';
       copyButton.type = 'button';
-      copyButton.textContent = copyLabel;
       copyButton.setAttribute('aria-label', `${copyLabel}: ${label.textContent}`);
+
+      const setCopyState = (state: 'idle' | 'copied' | 'failed') => {
+        const icon = state === 'copied' ? checkIcon : state === 'failed' ? failedIcon : copyIcon;
+        const labelText = state === 'copied' ? copiedLabel : state === 'failed' ? failedLabel : copyLabel;
+        copyButton.innerHTML = icon;
+        copyButton.dataset.state = state;
+        copyButton.setAttribute('aria-label', `${labelText}: ${label.textContent}`);
+        copyButton.title = labelText;
+      };
+
+      setCopyState('idle');
 
       copyButton.addEventListener('click', async () => {
         try {
           await navigator.clipboard.writeText(code.textContent ?? '');
-          copyButton.textContent = copiedLabel;
+          setCopyState('copied');
           window.setTimeout(() => {
-            copyButton.textContent = copyLabel;
+            setCopyState('idle');
           }, 1600);
         } catch {
-          copyButton.textContent = 'Failed';
+          setCopyState('failed');
           window.setTimeout(() => {
-            copyButton.textContent = copyLabel;
+            setCopyState('idle');
           }, 1600);
         }
       });
