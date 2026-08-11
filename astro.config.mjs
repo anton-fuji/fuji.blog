@@ -8,7 +8,7 @@ import remarkLinkCard from './src/lib/remark-link-card';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://fuji.blog',
+  site: 'https://fuji-blog.netlify.app',
   vite: {
     plugins: [tailwindcss()]
   },
