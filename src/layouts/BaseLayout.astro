@@ -102,6 +102,7 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
             <span>Search</span>
             <kbd>⌘ K</kbd>
+            <kbd>/</kbd>
           </button>
           <a href="/rss.xml" target="_blank" rel="noopener noreferrer" class="nav-action" aria-label="RSS">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -205,8 +206,10 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
         });
         input?.addEventListener('input', () => render(input.value));
         dialog?.querySelectorAll('.search-backdrop, #search-close').forEach((element) => element.addEventListener('click', closeSearch));
+        const isEditableTarget = (target) => target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
         addEventListener('keydown', (event) => {
           if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); trigger?.click(); }
+          if (event.key === '/' && !event.isComposing && !isEditableTarget(event.target)) { event.preventDefault(); trigger?.click(); }
           if (event.key === 'Escape') closeSearch();
         });
       })();
