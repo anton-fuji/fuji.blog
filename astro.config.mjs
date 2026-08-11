@@ -8,7 +8,7 @@ import remarkLinkCard from './src/lib/remark-link-card';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'http://localhost:4321', // TODO: デプロイ前に本番URLに修正
+  site: 'https://fuji.blog',
   vite: {
     plugins: [tailwindcss()]
   },

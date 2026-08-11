@@ -35,17 +35,19 @@ const formattedUpdatedDate = updatedDate
 
 const readingTime = getReadingTime(post);
 const postPath = lang === 'en' ? `/en/posts/${slug}` : `/posts/${slug}`;
-const ogImagePath = lang === 'en' ? `og/en/${slug}.png` : `og/${slug}.png`;
+const ogImagePath = lang === 'en' ? `/og/en/${slug}.png` : `/og/${slug}.png`;
+const ogImageUrl = new URL(ogImagePath, Astro.site ?? Astro.url).href;
 
 // X共有用のURL
-const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://fuji.blog${postPath}`)}`;
+const postUrl = new URL(postPath, Astro.site ?? Astro.url).href;
+const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(postUrl)}`;
 ---
 
 <BaseLayout title={title} description={description} lang={lang} jaPath={jaPath} enPath={enPath}>
   <meta slot="head" property="og:type" content="article" />
-  <meta slot="head" property="og:image" content={`${Astro.site}${ogImagePath}`} />
+  <meta slot="head" property="og:image" content={ogImageUrl} />
   <meta slot="head" property="og:url" content={Astro.url.href} />
-  <meta slot="head" name="twitter:image" content={`${Astro.site}${ogImagePath}`} />
+  <meta slot="head" name="twitter:image" content={ogImageUrl} />
   
   <div class="article-frame">
     <div class="article-layout">
