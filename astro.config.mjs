@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 import mdx from '@astrojs/mdx';
 import remarkLinkCard from './src/lib/remark-link-card';
+import remarkQuote from './src/lib/remark-quote';
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,5 +14,5 @@ export default defineConfig({
     plugins: [tailwindcss()]
   },
 
-  integrations: [mdx({ remarkPlugins: [remarkLinkCard] })]
+  integrations: [mdx({ remarkPlugins: [remarkLinkCard, remarkQuote] })]
 });

@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 import { getPostLocale, getPostSlug, getTranslatedPost } from '../../lib/posts';
 import LinkCard from '../../components/LinkCard.astro';
+import Quote from '../../components/Quote.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -21,5 +22,5 @@ const slug = getPostSlug(post);
 ---
 
 <BlogPost {...post.data} slug={slug} headings={headings} post={post} lang="ja" jaPath={`/posts/${slug}`} enPath={translatedPost ? `/en/posts/${getPostSlug(translatedPost)}` : undefined}>
-  <Content components={{ LinkCard }} />
+  <Content components={{ LinkCard, Quote }} />
 </BlogPost>

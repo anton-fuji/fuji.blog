@@ -126,6 +126,17 @@ a { color: inherit; }
 .article-content ul { list-style: disc; }
 .article-content ol { list-style: decimal; }
 .article-content li::marker { color: var(--muted); }
+
+/* Every Markdown quote uses the same source-card treatment. */
+.article-content .article-quote { position: relative; margin: 2rem 0; padding: 1.2rem 1.25rem 1.1rem 1.4rem; overflow: hidden; border: 1px solid color-mix(in srgb, var(--blue) 34%, var(--line)); border-left: 3px solid var(--blue); border-radius: .55rem; color: var(--ink); background: color-mix(in srgb, var(--blue) 7%, var(--paper)); }
+.article-content .article-quote::before { position: absolute; top: .35rem; left: .7rem; color: var(--blue); content: "“"; font: 2.6rem/.9 Georgia, serif; opacity: .18; }
+.article-content .article-quote p { position: relative; margin: 0; color: var(--ink); font-size: 1rem; font-style: normal; line-height: 1.72; }
+.article-content .article-quote p + p { margin-top: .85rem; }
+.article-content .article-quote__source { color: var(--muted) !important; font: .72rem/1.45 var(--mono); }
+.article-content .article-quote__source a { color: inherit; text-underline-offset: 3px; }
+.article-content .article-quote__source a:hover { color: var(--blue); }
+.article-content .article-quote__translation { padding-top: .85rem; border-top: 1px solid color-mix(in srgb, var(--blue) 28%, var(--line)); color: var(--muted) !important; font-size: .93rem !important; }
+.article-content .article-quote__translation strong { display: block; margin-bottom: .22rem; color: var(--blue); font: 600 .68rem/1.4 var(--mono); letter-spacing: .08em; }
 .code-block { border-radius: .6rem; background: #f4f6f7; box-shadow: 0 .5rem 1.5rem rgb(23 23 23 / .06); }
 .code-block__header { min-height: 2.75rem; padding: 0 .7rem 0 .95rem; border-bottom-color: #dfe4e7; color: #69757d; background: #edf1f3; text-transform: none; letter-spacing: .02em; }
 .code-block__language { font: 500 .69rem/1 var(--mono); letter-spacing: .02em; }
