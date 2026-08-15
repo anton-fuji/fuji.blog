@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
-import { getPostLocale, getPostSlug, getTranslatedPost } from '../../lib/posts';
+import { getPostLocale, getPostSlug, getPublishedPosts, getTranslatedPost } from '../../lib/posts';
 import LinkCard from '../../components/LinkCard.astro';
 import Quote from '../../components/Quote.astro';
 
@@ -19,8 +19,14 @@ const { post, posts } = Astro.props;
 const { Content , headings} = await render(post);
 const translatedPost = getTranslatedPost(post, posts, 'en');
 const slug = getPostSlug(post);
+const publishedPosts = getPublishedPosts(posts, 'ja');
+const currentIndex = publishedPosts.findIndex((candidate) => candidate.id === post.id);
+const newerPost = currentIndex > 0 ? publishedPosts[currentIndex - 1] : undefined;
+const olderPost = currentIndex >= 0 && currentIndex < publishedPosts.length - 1
+  ? publishedPosts[currentIndex + 1]
+  : undefined;
 ---
 
-<BlogPost {...post.data} slug={slug} headings={headings} post={post} lang="ja" jaPath={`/posts/${slug}`} enPath={translatedPost ? `/en/posts/${getPostSlug(translatedPost)}` : undefined}>
+<BlogPost {...post.data} slug={slug} headings={headings} post={post} newerPost={newerPost} olderPost={olderPost} lang="ja" jaPath={`/posts/${slug}`} enPath={translatedPost ? `/en/posts/${getPostSlug(translatedPost)}` : undefined}>
   <Content components={{ LinkCard, Quote }} />
 </BlogPost>
