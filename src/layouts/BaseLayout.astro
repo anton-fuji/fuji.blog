@@ -164,6 +164,12 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
         const refreshHighlight = () => setHighlight(activeLink());
         links.forEach((link) => {
           link.addEventListener('pointerenter', () => setHighlight(link));
+          link.addEventListener('pointerleave', (event) => {
+            const nextLink = event.relatedTarget instanceof Element
+              ? event.relatedTarget.closest('.primary-link')
+              : null;
+            if (!nextLink) refreshHighlight();
+          });
           link.addEventListener('focus', () => setHighlight(link));
         });
         primaryLinks?.addEventListener('pointerleave', refreshHighlight);
