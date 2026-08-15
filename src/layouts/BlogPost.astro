@@ -45,6 +45,7 @@ const ogImageUrl = new URL(ogImagePath, Astro.site ?? Astro.url).href;
 // X共有用のURL
 const postUrl = new URL(postPath, Astro.site ?? Astro.url).href;
 const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(postUrl)}`;
+const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
 ---
 
 <BaseLayout title={title} description={description} lang={lang} jaPath={jaPath} enPath={enPath}>
@@ -136,19 +137,19 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
       {(newerPost || olderPost) && (
         <nav class="article-pagination" aria-label={lang === 'en' ? 'Post navigation' : '記事ナビゲーション'}>
           <p class="article-pagination__label">{lang === 'en' ? 'Continue reading' : '次に読む'}</p>
-          <div class="article-pagination__links">
+          <div class:list={['article-pagination__links', hasSingleAdjacentPost && 'article-pagination__links--single']}>
             {newerPost ? (
               <a class="article-pagination__link" data-article-nav="newer" href={getPostPath(newerPost)}>
                 <span>{lang === 'en' ? '← Newer entry' : '← 新しい記事'}</span>
                 <strong>{newerPost.data.title}</strong>
               </a>
-            ) : <span />}
+            ) : null}
             {olderPost ? (
-              <a class="article-pagination__link article-pagination__link--right" data-article-nav="older" href={getPostPath(olderPost)}>
+              <a class:list={['article-pagination__link', newerPost && 'article-pagination__link--right']} data-article-nav="older" href={getPostPath(olderPost)}>
                 <span>{lang === 'en' ? 'Older entry →' : '古い記事 →'}</span>
                 <strong>{olderPost.data.title}</strong>
               </a>
-            ) : <span />}
+            ) : null}
           </div>
         </nav>
       )}
@@ -173,6 +174,7 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
         <div><dt><kbd>j</kbd> / <kbd>k</kbd></dt><dd>{lang === 'en' ? 'Next / previous heading' : '次／前の見出しへ'}</dd></div>
         <div><dt><kbd>g</kbd> / <kbd>G</kbd></dt><dd>{lang === 'en' ? 'Top / bottom of article' : '記事の先頭／末尾へ'}</dd></div>
         <div><dt><kbd>h</kbd> / <kbd>l</kbd></dt><dd>{lang === 'en' ? 'Newer / older entry' : '新しい／古い記事へ'}</dd></div>
+        <div><dt><kbd>/</kbd></dt><dd>{lang === 'en' ? 'Open search' : '検索を開く'}</dd></div>
       </dl>
     </section>
   </div>
@@ -275,7 +277,7 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
     };
     const openShortcuts = () => {
       shortcutsDialog?.removeAttribute('hidden');
-      window.setTimeout(() => shortcutsPanel?.focus(), 0);
+      window.setTimeout(() => shortcutsPanel?.querySelector<HTMLElement>('[data-article-shortcuts-close]')?.focus(), 0);
     };
     shortcutsTriggers.forEach((trigger) => trigger.addEventListener('click', openShortcuts));
     shortcutsDialog?.querySelectorAll('[data-article-shortcuts-close]').forEach((closeButton) => {
@@ -295,6 +297,21 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
       if (!article || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || event.isComposing) return;
       if (!shortcutsDialog?.hasAttribute('hidden')) {
         if (event.key === 'Escape') { event.preventDefault(); closeShortcuts(); }
+        if (event.key === 'Tab' && shortcutsPanel) {
+          const focusable = [...shortcutsPanel.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+          const first = focusable[0];
+          const last = focusable.at(-1);
+          if (first && last) {
+            const activeElement = document.activeElement;
+            if (event.shiftKey && (activeElement === first || !shortcutsPanel.contains(activeElement))) {
+              event.preventDefault();
+              last.focus();
+            } else if (!event.shiftKey && (activeElement === last || !shortcutsPanel.contains(activeElement))) {
+              event.preventDefault();
+              first.focus();
+            }
+          }
+        }
         return;
       }
       if (isEditableTarget(event.target)) return;
