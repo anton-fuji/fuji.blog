@@ -2,12 +2,14 @@
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import PostBadge from '../components/PostBadge.astro';
-import { formatPostDate, getReadingTime } from '../lib/posts';
+import { formatPostDate, getPostPath, getReadingTime } from '../lib/posts';
 
 type Props = CollectionEntry<'posts'>['data'] & {
   slug: string;
   headings: { depth: number; slug: string; text: string }[];
   post: CollectionEntry<'posts'>;
+  newerPost?: CollectionEntry<'posts'>;
+  olderPost?: CollectionEntry<'posts'>;
   lang?: 'ja' | 'en';
   jaPath?: string;
   enPath?: string;
@@ -22,6 +24,8 @@ const {
   slug,
   headings = [],
   post,
+  newerPost,
+  olderPost,
   lang = 'ja',
   jaPath,
   enPath,
@@ -41,6 +45,7 @@ const ogImageUrl = new URL(ogImagePath, Astro.site ?? Astro.url).href;
 // X共有用のURL
 const postUrl = new URL(postPath, Astro.site ?? Astro.url).href;
 const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(postUrl)}`;
+const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
 ---
 
 <BaseLayout title={title} description={description} lang={lang} jaPath={jaPath} enPath={enPath}>
@@ -128,8 +133,50 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
           </svg>
         </a>
       </div>
+
+      {(newerPost || olderPost) && (
+        <nav class="article-pagination" aria-label={lang === 'en' ? 'Post navigation' : '記事ナビゲーション'}>
+          <p class="article-pagination__label">{lang === 'en' ? 'Continue reading' : '次に読む'}</p>
+          <div class:list={['article-pagination__links', hasSingleAdjacentPost && 'article-pagination__links--single']}>
+            {newerPost ? (
+              <a class="article-pagination__link" data-article-nav="newer" href={getPostPath(newerPost)}>
+                <span>{lang === 'en' ? '← Newer entry' : '← 新しい記事'}</span>
+                <strong>{newerPost.data.title}</strong>
+              </a>
+            ) : null}
+            {olderPost ? (
+              <a class:list={['article-pagination__link', newerPost && 'article-pagination__link--right']} data-article-nav="older" href={getPostPath(olderPost)}>
+                <span>{lang === 'en' ? 'Older entry →' : '古い記事 →'}</span>
+                <strong>{olderPost.data.title}</strong>
+              </a>
+            ) : null}
+          </div>
+        </nav>
+      )}
+
+      <button class="article-shortcuts-trigger" type="button" data-article-shortcuts-open aria-haspopup="dialog">
+        {lang === 'en' ? '? Shortcuts' : '? ショートカット'}
+      </button>
       </article>
     </div>
+  </div>
+
+  <div id="article-shortcuts-dialog" class="article-shortcuts-dialog" hidden>
+    <button class="article-shortcuts-dialog__backdrop" type="button" data-article-shortcuts-close aria-label={lang === 'en' ? 'Close shortcuts' : 'ショートカットを閉じる'}></button>
+    <section class="article-shortcuts-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="article-shortcuts-title" tabindex="-1">
+      <div class="article-shortcuts-dialog__header">
+        <p id="article-shortcuts-title">{lang === 'en' ? 'Keyboard shortcuts' : 'キーボードショートカット'}</p>
+        <button type="button" data-article-shortcuts-close aria-label={lang === 'en' ? 'Close shortcuts' : 'ショートカットを閉じる'}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <dl class="article-shortcuts-dialog__list">
+        <div><dt><kbd>j</kbd> / <kbd>k</kbd></dt><dd>{lang === 'en' ? 'Next / previous heading' : '次／前の見出しへ'}</dd></div>
+        <div><dt><kbd>g</kbd> / <kbd>G</kbd></dt><dd>{lang === 'en' ? 'Top / bottom of article' : '記事の先頭／末尾へ'}</dd></div>
+        <div><dt><kbd>h</kbd> / <kbd>l</kbd></dt><dd>{lang === 'en' ? 'Newer / older entry' : '新しい／古い記事へ'}</dd></div>
+        <div><dt><kbd>/</kbd></dt><dd>{lang === 'en' ? 'Open search' : '検索を開く'}</dd></div>
+      </dl>
+    </section>
   </div>
 
   <script>
@@ -208,6 +255,76 @@ const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tit
       header.append(label, copyButton);
       pre.replaceWith(wrapper);
       wrapper.append(header, pre);
+    });
+
+    const article = document.querySelector<HTMLElement>('.article');
+    const shortcutsDialog = document.getElementById('article-shortcuts-dialog');
+    const shortcutsPanel = shortcutsDialog?.querySelector<HTMLElement>('.article-shortcuts-dialog__panel');
+    const shortcutsTriggers = document.querySelectorAll<HTMLButtonElement>('[data-article-shortcuts-open]');
+    const newerArticleLink = document.querySelector<HTMLAnchorElement>('[data-article-nav="newer"]');
+    const olderArticleLink = document.querySelector<HTMLAnchorElement>('[data-article-nav="older"]');
+    const articleHeadings = [...document.querySelectorAll<HTMLElement>('.article-content h2, .article-content h3')];
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isEditableTarget = (target: EventTarget | null) => target instanceof HTMLElement && (
+      target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)
+    );
+    const scrollToPosition = (top: number) => {
+      window.scrollTo({ top: Math.max(0, top), behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+    };
+    const closeShortcuts = () => {
+      shortcutsDialog?.setAttribute('hidden', '');
+      shortcutsTriggers[0]?.focus();
+    };
+    const openShortcuts = () => {
+      shortcutsDialog?.removeAttribute('hidden');
+      window.setTimeout(() => shortcutsPanel?.querySelector<HTMLElement>('[data-article-shortcuts-close]')?.focus(), 0);
+    };
+    shortcutsTriggers.forEach((trigger) => trigger.addEventListener('click', openShortcuts));
+    shortcutsDialog?.querySelectorAll('[data-article-shortcuts-close]').forEach((closeButton) => {
+      closeButton.addEventListener('click', closeShortcuts);
+    });
+    const moveHeading = (direction: 1 | -1) => {
+      const headingOffset = 24;
+      const currentPosition = window.scrollY + headingOffset;
+      const candidates = direction === 1
+        ? articleHeadings.filter((heading) => heading.offsetTop > currentPosition + 4)
+        : articleHeadings.filter((heading) => heading.offsetTop < currentPosition - 4);
+      const target = direction === 1 ? candidates[0] : candidates.at(-1);
+      if (target) scrollToPosition(target.offsetTop - headingOffset);
+    };
+
+    addEventListener('keydown', (event) => {
+      if (!article || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || event.isComposing) return;
+      if (!shortcutsDialog?.hasAttribute('hidden')) {
+        if (event.key === 'Escape') { event.preventDefault(); closeShortcuts(); }
+        if (event.key === 'Tab' && shortcutsPanel) {
+          const focusable = [...shortcutsPanel.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+          const first = focusable[0];
+          const last = focusable.at(-1);
+          if (first && last) {
+            const activeElement = document.activeElement;
+            if (event.shiftKey && (activeElement === first || !shortcutsPanel.contains(activeElement))) {
+              event.preventDefault();
+              last.focus();
+            } else if (!event.shiftKey && (activeElement === last || !shortcutsPanel.contains(activeElement))) {
+              event.preventDefault();
+              first.focus();
+            }
+          }
+        }
+        return;
+      }
+      if (isEditableTarget(event.target)) return;
+      if (!document.getElementById('search-dialog')?.hasAttribute('hidden')) return;
+      if (event.key === '?') { event.preventDefault(); openShortcuts(); return; }
+      if (event.target instanceof HTMLButtonElement || event.target instanceof HTMLAnchorElement) return;
+
+      if (event.key === 'j') { event.preventDefault(); moveHeading(1); }
+      if (event.key === 'k') { event.preventDefault(); moveHeading(-1); }
+      if (event.key === 'g') { event.preventDefault(); scrollToPosition(article.offsetTop - 24); }
+      if (event.key === 'G') { event.preventDefault(); scrollToPosition(article.offsetTop + article.offsetHeight - window.innerHeight + 24); }
+      if (event.key === 'h' && newerArticleLink) { event.preventDefault(); window.location.assign(newerArticleLink.href); }
+      if (event.key === 'l' && olderArticleLink) { event.preventDefault(); window.location.assign(olderArticleLink.href); }
     });
   </script>
 </BaseLayout>

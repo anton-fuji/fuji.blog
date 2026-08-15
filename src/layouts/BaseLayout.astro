@@ -164,6 +164,12 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
         const refreshHighlight = () => setHighlight(activeLink());
         links.forEach((link) => {
           link.addEventListener('pointerenter', () => setHighlight(link));
+          link.addEventListener('pointerleave', (event) => {
+            const nextLink = event.relatedTarget instanceof Element
+              ? event.relatedTarget.closest('.primary-link')
+              : null;
+            if (!nextLink) refreshHighlight();
+          });
           link.addEventListener('focus', () => setHighlight(link));
         });
         primaryLinks?.addEventListener('pointerleave', refreshHighlight);
@@ -208,6 +214,8 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
         dialog?.querySelectorAll('.search-backdrop, #search-close').forEach((element) => element.addEventListener('click', closeSearch));
         const isEditableTarget = (target) => target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
         addEventListener('keydown', (event) => {
+          const shortcutsDialog = document.getElementById('article-shortcuts-dialog');
+          if (shortcutsDialog instanceof HTMLElement && !shortcutsDialog.hasAttribute('hidden')) return;
           if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); trigger?.click(); }
           if (event.key === '/' && !event.isComposing && !isEditableTarget(event.target)) { event.preventDefault(); trigger?.click(); }
           if (event.key === 'Escape') closeSearch();
