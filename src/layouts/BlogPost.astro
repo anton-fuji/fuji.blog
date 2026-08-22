@@ -56,6 +56,23 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
   
   <div class="article-frame">
     <div class="article-layout">
+      {headings.length > 0 && (
+        <aside class="article-toc article-toc--desktop" aria-label={lang === 'en' ? 'Table of contents' : '目次'}>
+          <div class="article-toc__heading">
+            <span data-i18n-ja="目次" data-i18n-en="Contents">Contents</span>
+            <span class="article-toc__progress" data-toc-progress>0%</span>
+          </div>
+          <nav>
+            <ul>
+              {headings.map((heading) => (
+                <li class:list={[heading.depth > 2 && 'article-toc__item--nested']}>
+                  <a href={`#${heading.slug}`} data-toc-link={heading.slug}>{heading.text}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </aside>
+      )}
       <article class="article">
       <header class="article-header">
         <nav class="article-breadcrumb" aria-label="Breadcrumb">
@@ -103,13 +120,16 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
       </header>
 
       {headings.length > 0 && (
-        <details class="article-toc">
-          <summary data-i18n-ja="目次" data-i18n-en="Contents">Contents</summary>
+        <details class="article-toc article-toc--mobile">
+          <summary>
+            <span data-i18n-ja="目次" data-i18n-en="Contents">Contents</span>
+            <span class="article-toc__summary-meta"><span data-toc-progress>0%</span><span class="article-toc__indicator" aria-hidden="true"></span></span>
+          </summary>
           <nav aria-label="Table of contents">
             <ul>
               {headings.map((heading) => (
-                <li style={`padding-left: ${(heading.depth - 1) * 12}px`}>
-                  <a href={`#${heading.slug}`}>{heading.text}</a>
+                <li class:list={[heading.depth > 2 && 'article-toc__item--nested']}>
+                  <a href={`#${heading.slug}`} data-toc-link={heading.slug}>{heading.text}</a>
                 </li>
               ))}
             </ul>
@@ -264,6 +284,13 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
     const newerArticleLink = document.querySelector<HTMLAnchorElement>('[data-article-nav="newer"]');
     const olderArticleLink = document.querySelector<HTMLAnchorElement>('[data-article-nav="older"]');
     const articleHeadings = [...document.querySelectorAll<HTMLElement>('.article-content h2, .article-content h3')];
+    const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+    const tocProgresses = [...document.querySelectorAll<HTMLElement>('[data-toc-progress]')];
+    const articleContent = document.querySelector<HTMLElement>('.article-content');
+    const articleLayout = document.querySelector<HTMLElement>('.article-layout');
+    const articleTitle = document.querySelector<HTMLElement>('.article-header h1');
+    const desktopToc = document.querySelector<HTMLElement>('.article-toc--desktop');
+    const desktopTocBreakpoint = window.matchMedia('(min-width: 1040px)');
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isEditableTarget = (target: EventTarget | null) => target instanceof HTMLElement && (
       target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)
@@ -292,6 +319,51 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
       const target = direction === 1 ? candidates[0] : candidates.at(-1);
       if (target) scrollToPosition(target.offsetTop - headingOffset);
     };
+
+    const updateToc = () => {
+      if (!articleContent || articleHeadings.length === 0) return;
+
+      const activeHeading = articleHeadings.reduce<HTMLElement | undefined>((current, heading) => (
+        heading.getBoundingClientRect().top <= 112 ? heading : current
+      ), undefined) ?? articleHeadings[0];
+      const activeId = activeHeading.id;
+
+      tocLinks.forEach((link) => {
+        const isActive = link.dataset.tocLink === activeId;
+        link.classList.toggle('is-active', isActive);
+        if (isActive) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+
+      const scrollableHeight = Math.max(1, articleContent.offsetHeight - window.innerHeight);
+      const progress = Math.round(Math.min(1, Math.max(0, (window.scrollY - articleContent.offsetTop) / scrollableHeight)) * 100);
+      tocProgresses.forEach((element) => { element.textContent = `${progress}%`; });
+    };
+
+    const alignDesktopToc = () => {
+      if (!articleLayout || !articleTitle || !desktopToc) return;
+      if (!desktopTocBreakpoint.matches) {
+        desktopToc.style.removeProperty('margin-top');
+        return;
+      }
+
+      const titleOffset = articleTitle.getBoundingClientRect().top - articleLayout.getBoundingClientRect().top;
+      desktopToc.style.marginTop = `${Math.max(0, titleOffset)}px`;
+    };
+
+    let tocFrame = 0;
+    const requestTocUpdate = () => {
+      if (tocFrame) return;
+      tocFrame = requestAnimationFrame(() => {
+        alignDesktopToc();
+        updateToc();
+        tocFrame = 0;
+      });
+    };
+    alignDesktopToc();
+    updateToc();
+    addEventListener('scroll', requestTocUpdate, { passive: true });
+    addEventListener('resize', requestTocUpdate);
 
     addEventListener('keydown', (event) => {
       if (!article || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || event.isComposing) return;
