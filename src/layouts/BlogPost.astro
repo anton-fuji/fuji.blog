@@ -123,7 +123,11 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
         <details class="article-toc article-toc--mobile">
           <summary>
             <span data-i18n-ja="目次" data-i18n-en="Contents">Contents</span>
-            <span class="article-toc__summary-meta"><span data-toc-progress>0%</span><span class="article-toc__indicator" aria-hidden="true"></span></span>
+            <span class="article-toc__summary-meta">
+              <span class="article-toc__count">{lang === 'en' ? `${headings.length} sections` : `${headings.length}項目`}</span>
+              <span data-toc-progress>0%</span>
+              <span class="article-toc__indicator" aria-hidden="true"></span>
+            </span>
           </summary>
           <nav aria-label="Table of contents">
             <ul>
