@@ -156,6 +156,16 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
         </a>
+        <button
+          class="share-link share-link--copy"
+          type="button"
+          data-copy-post-link={postUrl}
+          aria-label={lang === 'en' ? 'Copy link' : 'リンクをコピー'}
+        >
+          <span data-share-copy-label>{lang === 'en' ? 'Copy link' : 'リンクをコピー'}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="1.5"></rect><path d="M16 8V6.5A1.5 1.5 0 0 0 14.5 5h-8A1.5 1.5 0 0 0 5 6.5v8A1.5 1.5 0 0 0 6.5 16H8"></path></svg>
+        </button>
+        <span class="share-copy-status" data-share-copy-status aria-live="polite"></span>
       </div>
 
       {(newerPost || olderPost) && (
@@ -279,6 +289,33 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
       header.append(label, copyButton);
       pre.replaceWith(wrapper);
       wrapper.append(header, pre);
+    });
+
+    const postLinkCopyButton = document.querySelector<HTMLButtonElement>('[data-copy-post-link]');
+    const postLinkCopyLabel = document.querySelector<HTMLElement>('[data-share-copy-label]');
+    const postLinkCopyStatus = document.querySelector<HTMLElement>('[data-share-copy-status]');
+    const postLinkLabel = document.documentElement.lang === 'ja' ? 'リンクをコピー' : 'Copy link';
+    const postLinkCopiedLabel = document.documentElement.lang === 'ja' ? 'コピーしました' : 'Copied';
+    const postLinkFailedLabel = document.documentElement.lang === 'ja' ? 'コピーに失敗しました' : 'Copy failed';
+
+    const setPostLinkCopyState = (state: 'idle' | 'copied' | 'failed') => {
+      if (!postLinkCopyButton || !postLinkCopyLabel) return;
+      const label = state === 'copied' ? postLinkCopiedLabel : state === 'failed' ? postLinkFailedLabel : postLinkLabel;
+      postLinkCopyButton.dataset.state = state;
+      postLinkCopyButton.setAttribute('aria-label', label);
+      postLinkCopyButton.title = label;
+      postLinkCopyLabel.textContent = label;
+      if (postLinkCopyStatus) postLinkCopyStatus.textContent = state === 'idle' ? '' : label;
+    };
+
+    postLinkCopyButton?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(postLinkCopyButton.dataset.copyPostLink ?? window.location.href);
+        setPostLinkCopyState('copied');
+      } catch {
+        setPostLinkCopyState('failed');
+      }
+      window.setTimeout(() => setPostLinkCopyState('idle'), 1600);
     });
 
     const article = document.querySelector<HTMLElement>('.article');
