@@ -9,3 +9,8 @@ pre-commit:
     lint:
       glob: '**/*.{astro,js,mjs,ts}'
       run: ./node_modules/.bin/oxlint {staged_files}
+
+pre-push:
+  commands:
+    build:
+      run: CI=true pnpm build

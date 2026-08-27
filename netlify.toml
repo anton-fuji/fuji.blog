@@ -1,6 +1,7 @@
 [build]
 publish = "dist"
 command = "npm run build"
+ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- src public astro.config.mjs package.json pnpm-lock.yaml pnpm-workspace.yaml tailwind.config.mjs tsconfig.json netlify.toml"
 
 [build.environment]
-  NODE_VERSION = "24"
+NODE_VERSION = "24"
