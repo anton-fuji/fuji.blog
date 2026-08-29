@@ -1018,39 +1018,52 @@ a {
 .code-block {
   overflow: hidden;
   margin: 2.25rem 0;
-  border: 1px solid var(--line);
+  border: 1px solid #30363d;
   border-radius: 0.6rem;
-  background: #f4f6f7;
-  box-shadow: 0 0.5rem 1.5rem rgb(23 23 23 / 0.06);
+  background: #24292e;
+  box-shadow: 0 0.65rem 1.75rem rgb(23 23 23 / 0.12);
 }
 .code-block__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 2.75rem;
-  padding: 0 0.7rem 0 0.95rem;
-  border-bottom: 1px solid #dfe4e7;
-  color: #69757d;
-  background: #edf1f3;
+  min-height: 2.9rem;
+  padding: 0 0.55rem 0 1rem;
+  border-bottom: 1px solid #30363d;
+  color: #9da8b3;
+  background: #1f2428;
   font: 500 0.68rem/1 var(--mono);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.035em;
   text-transform: none;
 }
 .code-block__language {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font: 500 0.69rem/1 var(--mono);
   letter-spacing: 0.02em;
   user-select: none;
 }
+.code-block__language::before {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: #8ac8ff;
+  box-shadow: 0 0 0 3px rgb(138 200 255 / 0.11);
+  content: '';
+}
 .code-block__copy {
-  display: grid;
-  width: 2rem;
-  height: 2rem;
-  place-items: center;
-  border: 1px solid transparent;
+  display: inline-flex;
+  min-width: 5.5rem;
+  height: 2.05rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.38rem;
+  border: 1px solid #3a434b;
   border-radius: 0.35rem;
-  padding: 0;
-  color: #71808a;
-  background: transparent;
+  padding: 0 0.55rem;
+  color: #b8c2ca;
+  background: #282f35;
   font: inherit;
   letter-spacing: inherit;
   cursor: pointer;
@@ -1060,13 +1073,14 @@ a {
     background 0.15s ease;
 }
 .code-block__copy:hover {
-  border-color: #cbd4d9;
-  color: #26323d;
-  background: #e1e7ea;
+  border-color: #587082;
+  color: #f0f6fc;
+  background: #343e46;
 }
 .code-block__copy svg {
-  width: 1rem;
-  height: 1rem;
+  width: 0.92rem;
+  height: 0.92rem;
+  flex: 0 0 auto;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -1074,23 +1088,24 @@ a {
   stroke-width: 1.7;
 }
 .code-block__copy[data-state='copied'] {
-  color: #16734a;
+  color: #8bd6b0;
 }
 .code-block__copy[data-state='failed'] {
-  color: #b54646;
+  color: #ff9e9e;
 }
 .code-block__copy:focus-visible {
-  outline: 2px solid var(--list-accent);
+  outline: 2px solid #8ac8ff;
   outline-offset: 2px;
 }
 .code-block pre {
   margin: 0;
-  padding: 0.75rem 0 0.85rem;
+  padding: 0.95rem 0 1rem;
   border: 0;
   border-radius: 0;
   background: transparent !important;
   color: #dce5e8 !important;
-  font: 0.84rem/1.15 var(--mono);
+  font: 0.84rem/1.68 var(--mono);
+  scrollbar-color: #57636d #1f2428;
 }
 .code-block pre code {
   display: block;
@@ -1098,7 +1113,7 @@ a {
 }
 .code-block pre .line {
   display: block;
-  min-height: 1.15em;
+  min-height: 1.68em;
   padding: 0 1.2rem 0 0;
   counter-increment: code-line;
 }
@@ -1107,10 +1122,10 @@ a {
 }
 .code-block pre .line::before {
   display: inline-block;
-  width: 3.1em;
-  margin-right: 1.15rem;
+  width: 3.25em;
+  margin-right: 1rem;
   border-right: 1px solid #29343a;
-  color: #64757e;
+  color: #768390;
   content: counter(code-line);
   text-align: right;
   user-select: none;
@@ -1691,17 +1706,18 @@ a {
   letter-spacing: 0.08em;
 }
 .light .code-block pre .line::before {
-  border-right-color: #d8e0e4;
-  color: #95a1a8;
+  border-right-color: #30363d;
+  color: #768390;
 }
 .dark .code-block {
-  background: #11181c;
+  border-color: #30363d;
+  background: #0d1117;
   box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 0.22);
 }
 .dark .code-block__header {
-  border-bottom-color: #29343a;
+  border-bottom-color: #30363d;
   color: #9aa7b0;
-  background: #0c1114;
+  background: #161b22;
 }
 .dark .code-block__copy {
   color: #9aa7b0;
@@ -1716,6 +1732,27 @@ a {
 }
 .dark .code-block__copy[data-state='failed'] {
   color: #ff9e9e;
+}
+
+@media (max-width: 480px) {
+  .code-block__header {
+    padding-right: 0.45rem;
+  }
+  .code-block__copy {
+    min-width: 2.05rem;
+    width: 2.05rem;
+    padding: 0;
+  }
+  .code-block__copy-label {
+    display: none;
+  }
+  .code-block pre .line {
+    padding-right: 0.9rem;
+  }
+  .code-block pre .line::before {
+    width: 2.7em;
+    margin-right: 0.8rem;
+  }
 }
 
 @media (min-width: 1040px) {
