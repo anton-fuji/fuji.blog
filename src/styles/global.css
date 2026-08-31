@@ -1052,6 +1052,12 @@ a {
   box-shadow: 0 0 0 3px rgb(138 200 255 / 0.11);
   content: '';
 }
+.code-block__actions {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+.code-block__wrap,
 .code-block__copy {
   display: inline-flex;
   width: 2.05rem;
@@ -1072,11 +1078,13 @@ a {
     border-color 0.15s ease,
     background 0.15s ease;
 }
+.code-block__wrap:hover,
 .code-block__copy:hover {
   border-color: #587082;
   color: #f0f6fc;
   background: #343e46;
 }
+.code-block__wrap svg,
 .code-block__copy svg {
   width: 0.92rem;
   height: 0.92rem;
@@ -1093,6 +1101,12 @@ a {
 .code-block__copy[data-state='failed'] {
   color: #ff9e9e;
 }
+.code-block__wrap[data-state='active'] {
+  border-color: #587082;
+  color: #8ac8ff;
+  background: #343e46;
+}
+.code-block__wrap:focus-visible,
 .code-block__copy:focus-visible {
   outline: 2px solid #8ac8ff;
   outline-offset: 2px;
@@ -1725,9 +1739,11 @@ a {
   color: #9aa7b0;
   background: #161b22;
 }
+.dark .code-block__wrap,
 .dark .code-block__copy {
   color: #9aa7b0;
 }
+.dark .code-block__wrap:hover,
 .dark .code-block__copy:hover {
   border-color: #3d4b53;
   color: #e1e7ea;
@@ -1739,16 +1755,40 @@ a {
 .dark .code-block__copy[data-state='failed'] {
   color: #ff9e9e;
 }
+.dark .code-block__wrap[data-state='active'] {
+  border-color: #526c7d;
+  color: #8ac8ff;
+  background: #182b38;
+}
+
+.code-block--wrapped pre {
+  overflow-x: hidden;
+}
+.code-block--wrapped pre code {
+  min-width: 0;
+}
+.code-block--wrapped pre .line {
+  padding-left: 4.25em;
+  overflow-wrap: anywhere;
+  text-indent: -4.25em;
+  white-space: pre-wrap;
+}
+.code-block--wrapped pre .line::before {
+  vertical-align: top;
+}
 
 @media (max-width: 480px) {
   .code-block__header {
     padding-right: 0.45rem;
   }
+  .code-block__wrap,
   .code-block__copy {
     flex: 0 0 2.05rem;
   }
-  .code-block pre .line {
+  .code-block--wrapped pre .line {
+    padding-left: 3.5em;
     padding-right: 0.9rem;
+    text-indent: -3.5em;
   }
   .code-block pre .line::before {
     width: 2.7em;

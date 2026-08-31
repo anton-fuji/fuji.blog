@@ -236,9 +236,12 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
     const copyLabel = document.documentElement.lang === 'ja' ? 'コピー' : 'Copy';
     const copiedLabel = document.documentElement.lang === 'ja' ? 'コピー済み' : 'Copied';
     const failedLabel = document.documentElement.lang === 'ja' ? 'コピーに失敗' : 'Copy failed';
+    const wrapLabel = document.documentElement.lang === 'ja' ? '行を折り返す' : 'Wrap lines';
+    const unwrapLabel = document.documentElement.lang === 'ja' ? '行の折り返しを解除' : 'Unwrap lines';
     const copyIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="1.5"></rect><path d="M16 8V6.5A1.5 1.5 0 0 0 14.5 5h-8A1.5 1.5 0 0 0 5 6.5v8A1.5 1.5 0 0 0 6.5 16H8"></path></svg>';
     const checkIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4.2 4.2L19 6.5"></path></svg>';
     const failedIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v6M12 17.2v.1"></path><circle cx="12" cy="12" r="8.5"></circle></svg>';
+    const wrapIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h11a3 3 0 0 1 0 6H9"></path><path d="m11 10-3 3 3 3"></path></svg>';
 
     document.querySelectorAll<HTMLElement>('.article-content pre[data-language]').forEach((pre) => {
       if (pre.parentElement?.classList.contains('code-block')) return;
@@ -250,15 +253,30 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
       const wrapper = document.createElement('div');
       const header = document.createElement('div');
       const label = document.createElement('span');
+      const actions = document.createElement('div');
+      const wrapButton = document.createElement('button');
       const copyButton = document.createElement('button');
 
       wrapper.className = 'code-block';
       header.className = 'code-block__header';
       label.className = 'code-block__language';
       label.textContent = languageNames[language.toLowerCase()] ?? language;
+      actions.className = 'code-block__actions';
+      wrapButton.className = 'code-block__wrap';
+      wrapButton.type = 'button';
+      wrapButton.innerHTML = wrapIcon;
       copyButton.className = 'code-block__copy';
       copyButton.type = 'button';
       copyButton.setAttribute('aria-label', `${copyLabel}: ${label.textContent}`);
+
+      const setWrapState = (isWrapped: boolean) => {
+        const labelText = isWrapped ? unwrapLabel : wrapLabel;
+        wrapper.classList.toggle('code-block--wrapped', isWrapped);
+        wrapButton.dataset.state = isWrapped ? 'active' : 'idle';
+        wrapButton.setAttribute('aria-pressed', String(isWrapped));
+        wrapButton.setAttribute('aria-label', `${labelText}: ${label.textContent}`);
+        wrapButton.title = labelText;
+      };
 
       const setCopyState = (state: 'idle' | 'copied' | 'failed') => {
         const icon = state === 'copied' ? checkIcon : state === 'failed' ? failedIcon : copyIcon;
@@ -270,6 +288,11 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
       };
 
       setCopyState('idle');
+      setWrapState(false);
+
+      wrapButton.addEventListener('click', () => {
+        setWrapState(!wrapper.classList.contains('code-block--wrapped'));
+      });
 
       copyButton.addEventListener('click', async () => {
         try {
@@ -286,7 +309,8 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
         }
       });
 
-      header.append(label, copyButton);
+      actions.append(wrapButton, copyButton);
+      header.append(label, actions);
       pre.replaceWith(wrapper);
       wrapper.append(header, pre);
     });
