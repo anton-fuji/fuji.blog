@@ -1054,14 +1054,14 @@ a {
 }
 .code-block__copy {
   display: inline-flex;
-  min-width: 5.5rem;
+  width: 2.05rem;
+  min-width: 2.05rem;
   height: 2.05rem;
   align-items: center;
   justify-content: center;
-  gap: 0.38rem;
   border: 1px solid #3a434b;
   border-radius: 0.35rem;
-  padding: 0 0.55rem;
+  padding: 0;
   color: #b8c2ca;
   background: #282f35;
   font: inherit;
@@ -1099,23 +1099,29 @@ a {
 }
 .code-block pre {
   margin: 0;
-  padding: 0.95rem 0 1rem;
+  padding: 0.8rem 0 0.85rem;
   border: 0;
   border-radius: 0;
   background: transparent !important;
   color: #dce5e8 !important;
-  font: 0.84rem/1.68 var(--mono);
+  font: 0.84rem/1.48 var(--mono);
   scrollbar-color: #57636d #1f2428;
 }
 .code-block pre code {
   display: block;
   min-width: max-content;
+  white-space: normal;
 }
 .code-block pre .line {
   display: block;
-  min-height: 1.68em;
+  min-height: 1.48em;
   padding: 0 1.2rem 0 0;
   counter-increment: code-line;
+  white-space: pre;
+}
+
+.code-block pre .line:empty {
+  min-height: 0.7em;
 }
 .code-block pre code {
   counter-reset: code-line;
@@ -1739,12 +1745,7 @@ a {
     padding-right: 0.45rem;
   }
   .code-block__copy {
-    min-width: 2.05rem;
-    width: 2.05rem;
-    padding: 0;
-  }
-  .code-block__copy-label {
-    display: none;
+    flex: 0 0 2.05rem;
   }
   .code-block pre .line {
     padding-right: 0.9rem;

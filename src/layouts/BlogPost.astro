@@ -263,7 +263,7 @@ const hasSingleAdjacentPost = Boolean(newerPost) !== Boolean(olderPost);
       const setCopyState = (state: 'idle' | 'copied' | 'failed') => {
         const icon = state === 'copied' ? checkIcon : state === 'failed' ? failedIcon : copyIcon;
         const labelText = state === 'copied' ? copiedLabel : state === 'failed' ? failedLabel : copyLabel;
-        copyButton.innerHTML = `${icon}<span class="code-block__copy-label">${labelText}</span>`;
+        copyButton.innerHTML = icon;
         copyButton.dataset.state = state;
         copyButton.setAttribute('aria-label', `${labelText}: ${label.textContent}`);
         copyButton.title = labelText;
