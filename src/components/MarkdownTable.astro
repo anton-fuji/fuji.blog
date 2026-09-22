@@ -1,0 +1,9 @@
+---
+const { class: className, ...tableProps } = Astro.props;
+---
+
+<div class="markdown-table" role="region" aria-label="表" tabindex="0">
+  <table class={className} {...tableProps}>
+    <slot />
+  </table>
+</div>
