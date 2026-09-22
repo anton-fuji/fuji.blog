@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import BlogPost from '../../../layouts/BlogPost.astro';
 import { getPostLocale, getPostSlug, getPublishedPosts, getTranslatedPost } from '../../../lib/posts';
 import LinkCard from '../../../components/LinkCard.astro';
+import MarkdownTable from '../../../components/MarkdownTable.astro';
 import Quote from '../../../components/Quote.astro';
 
 export async function getStaticPaths() {
@@ -28,5 +29,5 @@ const olderPost = currentIndex >= 0 && currentIndex < publishedPosts.length - 1
 ---
 
 <BlogPost {...post.data} slug={slug} headings={headings} post={post} newerPost={newerPost} olderPost={olderPost} lang="en" jaPath={translatedPost ? `/posts/${getPostSlug(translatedPost)}` : undefined} enPath={`/en/posts/${slug}`}>
-  <Content components={{ LinkCard, Quote }} />
+  <Content components={{ LinkCard, MarkdownTable, Quote, table: MarkdownTable }} />
 </BlogPost>
