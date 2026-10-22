@@ -10,12 +10,14 @@
     {
       devShells = nixpkgs.lib.genAttrs systems (system: {
         default =
-        let pkgs = nixpkgs.legacyPackages.${system};
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          nodejs = pkgs.callPackage ./nix/nodejs.nix { };
         in pkgs.mkShell {
-          packages = with pkgs; [
-            nodejs_24
-            pnpm
-            git
+          packages = [
+            nodejs
+            (pkgs.pnpm.override { nodejs-slim = nodejs; })
+            pkgs.git
           ];
 
           shellHook = ''
