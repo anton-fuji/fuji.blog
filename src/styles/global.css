@@ -475,6 +475,15 @@ a {
 .about-page .space-y-3 > * + * {
   margin-top: 0.5rem;
 }
+.about-programs {
+  margin-top: 2rem;
+}
+.about-subcategory {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
 .about-page a.group {
   border-color: var(--line);
   border-radius: 0;
