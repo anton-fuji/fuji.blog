@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @plugin "daisyui" {
   themes: false;
+  include: button, modal, navbar, input;
 }
 @plugin "daisyui/theme" {
   name: 'fuji-dark';
@@ -48,6 +49,38 @@
 }
 @variant dark (&:is(.dark *));
 
+/* Self-hosted Latin fonts (Japanese falls back to system fonts) */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  src: url('/fonts/ibm-plex-sans-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/ibm-plex-mono-400-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/ibm-plex-mono-500-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* Design tokens and base elements */
 :root {
   --paper: var(--color-base-100);
@@ -55,11 +88,10 @@
   --muted: color-mix(in srgb, var(--color-base-content) 66%, transparent);
   --line: var(--color-base-300);
   --blue: var(--color-primary);
-  --list-accent: #46545e;
   --blue-soft: #e7f2fa;
   --sans:
-    'IBM Plex Sans JP', Inter, 'Hiragino Sans', 'Noto Sans JP', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', sans-serif;
+    'IBM Plex Sans', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP',
+    'Noto Sans CJK JP', 'Yu Gothic UI', 'Yu Gothic', Meiryo, system-ui, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --serif: var(--sans);
 }
@@ -90,7 +122,7 @@ a {
   color: inherit;
 }
 ::selection {
-  background: #cfe8f8;
+  background: color-mix(in srgb, var(--blue) 35%, transparent);
 }
 
 /* Shared site shell, navigation, search, and footer */
@@ -327,9 +359,14 @@ a {
   color: var(--muted);
   text-decoration: none;
 }
-.search-results a:hover {
+.search-results a:hover,
+.search-results a[aria-selected='true'] {
   color: var(--ink);
   background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+.search-empty {
+  margin: 0;
+  padding: 0.8rem 0.65rem;
 }
 .search-results strong {
   color: var(--ink);
@@ -563,22 +600,10 @@ a {
   position: absolute;
   z-index: 0;
   inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.digital-rain__stream {
-  position: absolute;
-  top: 0;
-  display: grid;
-  gap: 4px;
-  width: 4px;
-  will-change: transform;
-}
-.digital-rain__stream i {
   display: block;
-  width: 4px;
-  height: 4px;
-  background: var(--ink);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 .home-intro {
   margin-bottom: 0;
@@ -1511,7 +1536,6 @@ a {
   --muted: #a1a1a1;
   --line: #2e2e2e;
   --blue: #8ac8ff;
-  --list-accent: #9aa7b0;
   --blue-soft: #162a38;
 }
 .dark .site-header {
@@ -1541,7 +1565,6 @@ a {
   --muted: #5e6670;
   --line: #dedede;
   --blue: #0069c2;
-  --list-accent: #46545e;
   --blue-soft: #e7f2fa;
 }
 .light .site-header,
@@ -1574,7 +1597,8 @@ a {
   border-color: #c9c9c9;
 }
 .light .menu-theme button:hover,
-.light .search-results a:hover {
+.light .search-results a:hover,
+.light .search-results a[aria-selected='true'] {
   background: #f0f0f0;
 }
 .light .hero__text {
@@ -1649,9 +1673,26 @@ a {
   .site-nav > div {
     gap: 0.8rem;
   }
-  .primary-links,
-  .nav-actions .nav-action:not(.nav-theme) {
+  .nav-actions .nav-action:not(.nav-theme),
+  .primary-link:first-of-type,
+  .nav-highlight {
     display: none;
+  }
+  .site-nav__primary {
+    flex: 1;
+    gap: 0 !important;
+  }
+  .primary-links {
+    position: static;
+    transform: none;
+  }
+  .primary-link {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.9rem;
+  }
+  .primary-link.is-active {
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
   }
   .nav-actions {
     margin-right: 0;
