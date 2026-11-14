@@ -21,6 +21,7 @@ const {
 const normalizedPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isHome = normalizedPath === '/' || normalizedPath === '/en';
 const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
+const fontStylesheet = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600;700&display=swap';
 ---
 
 <!DOCTYPE html>
@@ -33,7 +34,8 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600;700&display=swap" />
+    <link rel="preload" as="style" href={fontStylesheet} onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href={fontStylesheet} /></noscript>
 
     <!-- OGタグ -->
     <meta property="og:title" content={title} />

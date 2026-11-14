@@ -1,99 +1,129 @@
-<div id="digital-rain" class="digital-rain" aria-hidden="true"></div>
+<canvas id="digital-rain" class="digital-rain" aria-hidden="true"></canvas>
 
 <script is:inline>
   (() => {
-    const layer = document.getElementById('digital-rain');
-    if (!(layer instanceof HTMLElement)) return;
+    const canvas = document.getElementById('digital-rain');
+    if (!(canvas instanceof HTMLCanvasElement)) return;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const frame = layer.closest('.rain-frame');
-    if (!(frame instanceof HTMLElement)) return;
+    const frame = canvas.closest('.rain-frame');
+    const context = canvas.getContext('2d');
+    if (!(frame instanceof HTMLElement) || !context) return;
 
+    const BLOCK = 4;
+    const STEP = 8;
     const streams = [];
-    let animationFrame;
-    let lastFrame = performance.now();
     let width = 0;
     let height = 0;
+    let color = '#ededed';
+    let strength = 1;
+    let animationFrame = 0;
+    let lastFrame = 0;
+    let visible = true;
 
-    function random(min, max) {
-      return min + Math.random() * (max - min);
+    const random = (min, max) => min + Math.random() * (max - min);
+
+    function readTheme() {
+      const styles = getComputedStyle(frame);
+      color = styles.getPropertyValue('--ink').trim() || getComputedStyle(document.body).color;
+      strength = Number.parseFloat(styles.getPropertyValue('--rain-strength')) || 1;
     }
 
     function createStream() {
       const blockCount = Math.floor(random(6, 25));
-      const stream = document.createElement('div');
-      stream.className = 'digital-rain__stream';
       const brightHead = Math.random() > .82;
-
+      const alphas = [];
       for (let index = 0; index < blockCount; index += 1) {
-        const block = document.createElement('i');
         const fade = 1 - index / blockCount;
-        const alpha = Math.max(.06, random(.12, .34) * fade + (brightHead && index < 2 ? .45 * (1 - index * .5) : 0));
-        block.style.opacity = `calc(var(--rain-strength, 1) * ${alpha})`;
-        stream.append(block);
+        alphas.push(Math.max(.06, random(.12, .34) * fade + (brightHead && index < 2 ? .45 * (1 - index * .5) : 0)));
       }
-
-      layer.append(stream);
       return {
-        element: stream,
-        x: Math.round(random(0, Math.max(0, width - 4))),
+        alphas,
+        x: Math.round(random(0, Math.max(0, width - BLOCK))),
         y: random(-height, height),
         speed: random(7, 21),
-        height: blockCount * 8 - 4,
+        height: blockCount * STEP - BLOCK,
       };
     }
 
     function reset(stream) {
-      stream.x = Math.round(random(0, Math.max(0, width - 4)));
+      stream.x = Math.round(random(0, Math.max(0, width - BLOCK)));
       stream.y = -stream.height - random(40, height * .8);
       stream.speed = random(7, 21);
-      stream.element.style.left = `${stream.x}px`;
     }
 
     function setup() {
-      const bounds = layer.getBoundingClientRect();
+      const bounds = canvas.getBoundingClientRect();
+      const ratio = Math.min(devicePixelRatio || 1, 2);
       width = bounds.width;
       height = bounds.height;
-      streams.splice(0).forEach((stream) => stream.element.remove());
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      streams.length = 0;
       const count = Math.max(52, Math.floor(width / 10));
-      for (let index = 0; index < count; index += 1) {
-        const stream = createStream();
-        stream.element.style.left = `${stream.x}px`;
-        streams.push(stream);
-      }
+      for (let index = 0; index < count; index += 1) streams.push(createStream());
     }
 
     function draw(now) {
       const elapsed = Math.min(50, now - lastFrame) / 1000;
       lastFrame = now;
-      streams.forEach((stream) => {
+      context.clearRect(0, 0, width, height);
+      context.fillStyle = color;
+      for (const stream of streams) {
         stream.y += stream.speed * elapsed;
-        if (stream.y > height + 8) reset(stream);
-        stream.element.style.transform = `translate3d(0, ${stream.y}px, 0)`;
-      });
+        if (stream.y > height + STEP) reset(stream);
+        const top = Math.round(stream.y);
+        for (let index = 0; index < stream.alphas.length; index += 1) {
+          const y = top + index * STEP;
+          if (y < -BLOCK || y > height) continue;
+          context.globalAlpha = Math.min(1, stream.alphas[index] * strength);
+          context.fillRect(stream.x, y, BLOCK, BLOCK);
+        }
+      }
+      context.globalAlpha = 1;
       animationFrame = requestAnimationFrame(draw);
+    }
+
+    function play() {
+      if (animationFrame || !visible) return;
+      lastFrame = performance.now();
+      animationFrame = requestAnimationFrame(draw);
+    }
+
+    function pause() {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = 0;
     }
 
     function start() {
+      readTheme();
       setup();
-      animationFrame = requestAnimationFrame(draw);
+      play();
 
-      const observer = new ResizeObserver(() => {
-        setup();
-        lastFrame = performance.now();
+      let resizeTimer = 0;
+      new ResizeObserver(() => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(setup, 120);
+      }).observe(frame);
+
+      new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible) play();
+        else pause();
+      }).observe(canvas);
+
+      new MutationObserver(readTheme).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'data-theme'],
       });
-      observer.observe(frame);
-
-      addEventListener('resize', () => {
-        setup();
-        lastFrame = performance.now();
-      }, { passive: true });
     }
 
-    if (document.readyState === 'loading') {
-      addEventListener('DOMContentLoaded', start, { once: true });
-    } else {
-      start();
-    }
+    const schedule = () => ('requestIdleCallback' in window
+      ? requestIdleCallback(start, { timeout: 1500 })
+      : setTimeout(start, 200));
+
+    if (document.readyState === 'complete') schedule();
+    else addEventListener('load', schedule, { once: true });
   })();
 </script>

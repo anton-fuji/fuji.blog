@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @plugin "daisyui" {
   themes: false;
+  include: button, modal, navbar, input;
 }
 @plugin "daisyui/theme" {
   name: 'fuji-dark';
@@ -567,22 +568,10 @@ a {
   position: absolute;
   z-index: 0;
   inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.digital-rain__stream {
-  position: absolute;
-  top: 0;
-  display: grid;
-  gap: 4px;
-  width: 4px;
-  will-change: transform;
-}
-.digital-rain__stream i {
   display: block;
-  width: 4px;
-  height: 4px;
-  background: var(--ink);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 .home-intro {
   margin-bottom: 0;
