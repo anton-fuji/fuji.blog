@@ -27,7 +27,7 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
 <html lang={lang} data-theme="fuji-dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
@@ -98,10 +98,9 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
           </div>
         </div>
         <div class="nav-actions">
-          <button class="header-search btn btn-ghost btn-sm" type="button" aria-label="Search">
+          <button class="header-search btn btn-ghost btn-sm" type="button" aria-label="Search" aria-keyshortcuts="/ Meta+K Control+K" title="Search (/ or ⌘K)">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
             <span>Search</span>
-            <kbd>⌘ K</kbd>
             <kbd>/</kbd>
           </button>
           <a href="/rss.xml" target="_blank" rel="noopener noreferrer" class="nav-action" aria-label="RSS">
