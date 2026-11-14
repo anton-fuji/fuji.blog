@@ -139,11 +139,11 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
       <section class="search-panel modal-box" role="dialog" aria-modal="true" aria-labelledby="search-title">
         <div class="search-field">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          <input id="search-input" class="input input-ghost" type="search" placeholder="Search posts…" autocomplete="off" />
+          <input id="search-input" class="input input-ghost" type="search" placeholder={lang === 'en' ? 'Search posts…' : '記事を検索…'} autocomplete="off" role="combobox" aria-expanded="true" aria-controls="search-results" aria-autocomplete="list" aria-labelledby="search-title" />
           <button id="search-close" class="btn btn-ghost btn-xs" type="button">Esc</button>
         </div>
-        <p id="search-title" class="search-label">Recent posts</p>
-        <div id="search-results" class="search-results"></div>
+        <p id="search-title" class="search-label">{lang === 'en' ? 'Recent posts' : '最近の記事'}</p>
+        <div id="search-results" class="search-results" role="listbox" aria-labelledby="search-title"></div>
       </section>
     </div>
     <script is:inline>
@@ -188,30 +188,99 @@ const isAbout = normalizedPath === '/about' || normalizedPath === '/en/about';
         const dialog = document.getElementById('search-dialog');
         const input = document.getElementById('search-input');
         const results = document.getElementById('search-results');
-        const closeSearch = () => { document.body.classList.remove('search-open'); dialog?.classList.remove('modal-open'); dialog?.setAttribute('hidden', ''); };
-        const openSearch = () => { document.body.classList.add('search-open'); dialog?.removeAttribute('hidden'); dialog?.classList.add('modal-open'); setTimeout(() => input?.focus(), 0); };
+        const label = document.getElementById('search-title');
+        const language = location.pathname.startsWith('/en') ? 'en' : 'ja';
+        const copy = language === 'en'
+          ? { recent: 'Recent posts', matches: (count) => `${count} matching ${count === 1 ? 'post' : 'posts'}`, empty: 'No posts match. Try a shorter word or a tag name.' }
+          : { recent: '最近の記事', matches: (count) => `${count}件の記事`, empty: '一致する記事はありません。短い単語やタグ名で試してください。' };
+        const isOpen = () => dialog instanceof HTMLElement && !dialog.hasAttribute('hidden');
+        let returnFocus = null;
+        let selectedIndex = -1;
+        const resultLinks = () => (results instanceof HTMLElement ? [...results.querySelectorAll('a')] : []);
+        const select = (index) => {
+          const links = resultLinks();
+          if (!links.length || index < 0) {
+            selectedIndex = -1;
+            links.forEach((link) => link.setAttribute('aria-selected', 'false'));
+            input?.removeAttribute('aria-activedescendant');
+            return;
+          }
+          selectedIndex = index % links.length;
+          links.forEach((link, i) => link.setAttribute('aria-selected', String(i === selectedIndex)));
+          const current = links[selectedIndex];
+          input?.setAttribute('aria-activedescendant', current.id);
+          current.scrollIntoView({ block: 'nearest' });
+        };
+        const closeSearch = () => {
+          if (!isOpen()) return;
+          document.body.classList.remove('search-open');
+          dialog?.classList.remove('modal-open');
+          dialog?.setAttribute('hidden', '');
+          if (returnFocus instanceof HTMLElement) returnFocus.focus();
+          returnFocus = null;
+        };
+        const openSearch = () => {
+          if (isOpen()) { input?.focus(); return; }
+          returnFocus = document.activeElement;
+          document.body.classList.add('search-open');
+          dialog?.removeAttribute('hidden');
+          dialog?.classList.add('modal-open');
+          setTimeout(() => input?.focus(), 0);
+        };
         let posts = [];
         const render = (query = '') => {
           if (!(results instanceof HTMLElement)) return;
-          const language = location.pathname.startsWith('/en') ? 'en' : 'ja';
           const needle = query.trim().toLocaleLowerCase();
           const matches = posts.filter((post) => post.lang === language && (!needle || [post.title, post.description, ...post.tags].join(' ').toLocaleLowerCase().includes(needle))).slice(0, 8);
           results.replaceChildren();
-          if (!matches.length) { results.textContent = 'No matching posts.'; return; }
-          matches.forEach((post) => {
+          if (label) label.textContent = needle ? copy.matches(matches.length) : copy.recent;
+          if (!matches.length) {
+            const empty = document.createElement('p');
+            empty.className = 'search-empty';
+            empty.textContent = copy.empty;
+            results.append(empty);
+            select(-1);
+            return;
+          }
+          matches.forEach((post, index) => {
             const link = document.createElement('a'); link.href = post.href;
+            link.id = `search-result-${index}`;
+            link.setAttribute('role', 'option');
+            link.setAttribute('aria-selected', 'false');
+            link.tabIndex = -1;
+            link.addEventListener('pointermove', () => { if (selectedIndex !== index) select(index); });
             const title = document.createElement('strong'); title.textContent = post.title;
             const description = document.createElement('span'); description.textContent = post.description;
             link.append(title, description); results.append(link);
           });
+          select(needle ? 0 : -1);
         };
         trigger?.addEventListener('click', async () => {
           openSearch();
           if (!posts.length) { posts = await fetch('/search.json').then((response) => response.json()); }
-          render();
+          render(input instanceof HTMLInputElement ? input.value : '');
         });
         input?.addEventListener('input', () => render(input.value));
+        input?.addEventListener('keydown', (event) => {
+          if (event.isComposing) return;
+          const count = resultLinks().length;
+          if (event.key === 'ArrowDown' || (event.ctrlKey && event.key === 'n')) { event.preventDefault(); select(selectedIndex + 1); }
+          if (event.key === 'ArrowUp' || (event.ctrlKey && event.key === 'p')) { event.preventDefault(); select(selectedIndex <= 0 ? count - 1 : selectedIndex - 1); }
+          if (event.key === 'Enter') {
+            const links = resultLinks();
+            const target = links[selectedIndex] ?? (links.length === 1 ? links[0] : null);
+            if (target) { event.preventDefault(); target.click(); }
+          }
+        });
         dialog?.querySelectorAll('.search-backdrop, #search-close').forEach((element) => element.addEventListener('click', closeSearch));
+        dialog?.addEventListener('keydown', (event) => {
+          if (event.key !== 'Tab') return;
+          const focusable = [input, document.getElementById('search-close')].filter((element) => element instanceof HTMLElement);
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+          else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        });
         const isEditableTarget = (target) => target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
         addEventListener('keydown', (event) => {
           const shortcutsDialog = document.getElementById('article-shortcuts-dialog');
